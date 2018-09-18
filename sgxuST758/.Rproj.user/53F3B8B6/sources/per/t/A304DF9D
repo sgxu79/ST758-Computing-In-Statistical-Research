@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1536377073020.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3338312615",
+    "id" : "A304DF9D",
+    "lastKnownWriteTime" : 1537229783,
+    "last_content_update" : 1537229783766,
+    "path" : "D:/NCSU Rcode/ST758/Homework1.Rmd",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "324,29",
+        "last_setup_crc32" : "",
+        "scrollLine" : "314"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

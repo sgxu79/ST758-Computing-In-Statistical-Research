@@ -1,0 +1,5 @@
+"0","eg = power_method_dense(C,x,1e5,1e-3)
+"
+"2","Error in power_method_dense(C, x, 1e+05, 0.001) : 
+  Exceeds maximum iteration
+"

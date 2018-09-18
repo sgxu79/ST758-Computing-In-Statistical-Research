@@ -1,0 +1,94 @@
+#' Power Method for dense matrices
+#'
+#' \code{power_method_dense} applies the power method to estimate
+#' the eigenvector of a dense matrix associated with its largest eigenvector.
+#'
+#' @param A The input matrix
+#' @param x initial guess
+#' @param max_iter maximum number of iterations
+#' @param tol relative error stopping criterion
+#' @export
+power_method_dense <- function(A, x, max_iter, tol) {
+  for(i in 1:max_iter) {
+    x_last = x
+    matvec = A%*%x_last
+    x = (matvec)/norm(matvec,type="2")
+    change = norm(x-x_last,type="2")
+    change1 = norm(x+x_last,type="2")
+    crit = tol*norm(x_last,type="2")
+    conv = min(change,change1)-crit
+    if(conv<0) return(x)
+  }
+  stop("Exceeds maximum iteration")
+}
+
+#' Power Method for sparse matrices
+#'
+#' \code{power_method_sparse} applies the power method to estimate
+#' the eigenvector of a sparse matrix associated with its largest eigenvector.
+#'
+#' @param A The input matrix
+#' @param x initial guess
+#' @param max_iter maximum number of iterations
+#' @param tol relative error stopping criterion
+#' @import Matrix
+#' @export
+power_method_sparse <- function(A, x, max_iter, tol) {
+  if(!is(A,"sparseMatrix")) stop("Input matrix not sparse")
+  power_method_dense(A,x,max_iter,tol)
+}
+
+#' Power Method for low rank matrices
+#'
+#' \code{power_method_low_rank} applies the power method to estimate
+#' the eigenvector of a low rank matrix associated with its largest eigenvector.
+#'
+#' @param U The left input factor matrix
+#' @param V The right input factor matrix
+#' @param x initial guess
+#' @param max_iter maximum number of iterations
+#' @param tol relative error stopping criterion
+#' @export
+power_method_low_rank <- function(U, V, x, max_iter, tol) {
+  if(dim(U)[2]!=dim(V)[2]) stop("Dimension does not match")
+  for(i in 1:max_iter){
+    x_last = x
+    temp_vec = t(V)%*%x_last
+    matvec = U%*%temp_vec
+    x = matvec/norm(matvec,type="2")
+    change = norm(x-x_last,type="2")
+    change1 = norm(x+x_last,type="2")
+    crit = tol*norm(x_last,type="2")
+    conv = min(change,change1)-crit
+    if(conv<0) return(x)
+  }
+  stop("Exceeds maximum iteration")
+}
+
+#' Power Method for sparse + low rank matrices
+#'
+#' \code{power_method_sparse_plus_low_rank} applies the power method to estimate
+#' the eigenvector of a sparse + low rank matrix associated with its largest eigenvector.
+#'
+#' @param S sparse input matrix term
+#' @param U The left input factor matrix term
+#' @param V The right input factor matrix term
+#' @param x initial guess
+#' @param max_iter maximum number of iterations
+#' @param tol relative error stopping criterion
+#' @export
+power_method_sparse_plus_low_rank <- function(S, U, V, x, max_iter, tol) {
+  if(!is(S,"sparseMatrix")) stop("Input matrix not sparse")
+  if(dim(U)[2]!=dim(V)[2]) stop("Dimension does not match")
+  for(i in 1:max_iter){
+    x_last = x
+    temp_vec = S%*%x_last + U%*%(t(V)%*%x_last)
+    x = (temp_vec)/norm(temp_vec,type="2")
+    change = norm(x-x_last,type="2")
+    change1 = norm(x+x_last,type="2")
+    crit = tol*norm(x_last,type="2")
+    conv = min(change,change1)-crit
+    if(conv<0) return(x)
+  }
+  stop("Exceeds maximum iteration")
+}

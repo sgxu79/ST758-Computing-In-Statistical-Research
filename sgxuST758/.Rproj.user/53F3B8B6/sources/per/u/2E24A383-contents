@@ -1,0 +1,15 @@
+---
+title: "Test"
+author: "Steven Xu"
+date: "September 8, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=TURE, cache=TRUE}
+
+
+```
