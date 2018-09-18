@@ -1,0 +1,457 @@
+---
+title: "Homework 1"
+author: "Steven Xu"
+date: "Due @ 11:59pm on September 13, 2018"
+header-includes:
+  - \usepackage{bm}
+  - \newcommand{\Real}{\mathbb{R}}
+  - \newcommand{\dom}{{\bf dom}\,}
+  - \newcommand{\Tra}{^{\sf T}} % Transpose
+  - \newcommand{\Inv}{^{-1}} % Inverse
+  - \def\vec{\mathop{\rm vec}\nolimits}
+  - \def\sweep{\mathop{\rm sweep}\nolimits}
+  - \newcommand{\diag}{\mathop{\rm diag}\nolimits}
+  - \newcommand{\tr}{\operatorname{tr}} % Trace
+  - \newcommand{\epi}{\operatorname{epi}} % epigraph
+  - \newcommand{\V}[1]{{\bm{\mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\VE}[2]{\MakeLowercase{#1}_{#2}} % vector element
+  - \newcommand{\Vn}[2]{\V{#1}^{(#2)}} % n-th vector
+  - \newcommand{\Vtilde}[1]{{\bm{\tilde \mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\Vhat}[1]{{\bm{\hat \mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\VtildeE}[2]{\tilde{\MakeLowercase{#1}}_{#2}} % vector element
+  - \newcommand{\M}[1]{{\bm{\mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\ME}[2]{\MakeLowercase{#1}_{#2}} % matrix element
+  - \newcommand{\Mtilde}[1]{{\bm{\tilde \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mhat}[1]{{\bm{\hat \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mcheck}[1]{{\bm{\check \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mbar}[1]{{\bm{\bar \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mn}[2]{\M{#1}^{(#2)}} % n-th matrix
+output: pdf_document
+---
+
+**Part 1.** 
+
+1. Let $\M{Q} \in \Real^{m \times m}$ be a rotation matrix, namely $\M{Q}\Tra\M{Q} = \M{I}$. **True or False:** The 1-norm of a vector $\V{x} \in \Real^m$ is rotationally invariant, namely
+
+$$
+\lVert \M{Q}\V{x} \rVert_1 = \lVert \V{x} \rVert_1.
+$$
+
+If true, give a proof. If false, provide a counter example.
+
+**Answer:**
+
+I will show that this is false by giving a counter example. Let
+
+$$
+\M{Q}=\begin{pmatrix}
+\frac{\sqrt{2}}{2} & \frac{\sqrt{2}}{2}\\
+-\frac{\sqrt{2}}{2} & \frac{\sqrt{2}}{2}
+\end{pmatrix}
+,
+\V{x}=\begin{pmatrix}
+1 \\
+1
+\end{pmatrix}
+$$
+
+We can quickly check that $\M{Q}\Tra\M{Q} = \M{I}$ and $\lVert \V{x}\rVert_1$=2. Then we have
+$$\M{Q}\V{x}=\begin{pmatrix}
+\sqrt{2} \\
+0
+\end{pmatrix}
+$$
+But $\lVert \M{Q}\V{x}\rVert_1=\sqrt{2}\ne2$, therefore the 1-norm is not rotaionally invariant.
+
+
+
+2. Let $\M{Q} \in \Real^{m \times m}$ be a rotation matrix, namely $\M{Q}\Tra\M{Q} = \M{I}$. **True or False:** The 2-norm of a vector $\V{x} \in \Real^m$ is rotationally invariant, namely
+
+$$
+\lVert \M{Q}\V{x} \rVert_2 = \lVert \V{x} \rVert_2.
+$$
+
+If true, give a proof. If false, provide a counter example.
+
+**Answer:**
+
+For notaion convenience I will prove that $\lVert \M{Q}\Tra\V{x} \rVert_2 = \lVert \V{x} \rVert_2$. Note that $\M{Q}$ is a rotation matrix if and only if $\M{Q}\Tra$ is a rotation matrix. Let 
+
+$$
+\M{Q}=\begin{pmatrix}
+\V{q_1}&\V{q_2}&\V{q_3}&...&\V{q_m}
+\end{pmatrix}
+,
+\M{Q}\Tra=\begin{pmatrix}
+\V{q_1}\Tra \\
+\V{q_2}\Tra \\
+\V{q_3}\Tra \\
+. \\
+. \\
+. \\
+\V{q_m}\Tra
+\end{pmatrix}
+$$
+Then
+$$
+\M{Q}\Tra\V{x}=\begin{pmatrix}
+\V{q_1}\Tra\V{x} \\
+\V{q_2}\Tra\V{x} \\
+\V{q_3}\Tra\V{x} \\
+. \\
+. \\
+. \\
+\V{q_m}\Tra\V{x} 
+\end{pmatrix}
+$$
+Then 
+$$
+\lVert\M{Q}\Tra\V{x}\rVert_2=\sum^m_{i=1}(\V{q_i}\Tra\V{x})^2=\sum^m_{i=1}(\V{q_i}\Tra\V{x})\Tra(\V{q_i}\Tra\V{x})=\sum^m_{i=1}\V{x}\Tra\V{q_i}\V{q_i}\Tra\V{x}
+$$
+
+We know that
+$$
+\M{Q}\M{Q}\Tra=\M{I}\Rightarrow \sum_{i=1}^m\V{q_i}\V{q_i}\Tra=\M{I}
+$$ 
+
+$$
+\therefore\sum_{i=1}^m\V{x}\Tra\V{q_i}\V{q_i}\Tra\V{x}=\V{x}\Tra\sum_{i=1}^m\V{q_i}\V{q_i}\Tra\V{x}=\V{x}\Tra\M{I}\V{x}=\sum_{i=1}^m x_i^2=\lVert\V{x}\rVert_2 
+$$
+Thus the 2-norm is rotationally invariant.
+
+3. Let $\M{Q} \in \Real^{m \times m}$ be a rotation matrix, namely $\M{Q}\Tra\M{Q} = \M{I}$. **True or False:** The $\infty$-norm of a vector $\V{x} \in \Real^m$ is rotationally invariant, namely
+
+$$
+\lVert \M{Q}\V{x} \rVert_\infty = \lVert \V{x} \rVert_\infty.
+$$
+
+If true, give a proof. If false, provide a counter example.
+
+**Answer:**
+
+This is false and I will again use the matrices in Question 1 as a counter example.
+$$
+\M{Q}=\begin{pmatrix}
+\frac{\sqrt{2}}{2} & \frac{\sqrt{2}}{2}\\
+-\frac{\sqrt{2}}{2} & \frac{\sqrt{2}}{2}
+\end{pmatrix}
+,
+\V{x}=\begin{pmatrix}
+1 \\
+1
+\end{pmatrix}
+,
+\M{Q}\V{x}=\begin{pmatrix}
+\sqrt{2} \\
+0
+\end{pmatrix}
+$$
+$$
+\Rightarrow \lVert \M{Q}\V{x} \rVert_\infty = \sqrt{2}\ne1 = \lVert \V{x} \rVert_\infty 
+$$
+Thus the $\infty-$norm is not rotationally invariant.
+
+
+\newpage
+
+**Part 2.** The Power Method
+
+You will next add an implementation of the power method to your R package. Recall that the power method can be used to determine a matrix $\M{A}$'s eigenvector associated with its largest eigenvalue. This iterative algorithm repeatedly does two computations: (i) a matrix-vector product and (ii) a normalization. Suppose $\Vn{x}{k}$ is the value of our guess of the eigenvector after $k$ iterations. Then we compute $\Vn{x}{k+1}$ from $\Vn{x}{k}$ as follows.
+
+$$
+\Vn{x}{k+1} \gets \frac{\M{A}\Vn{x}{k}}{\lVert \M{A}\Vn{x}{k}\rVert_2}
+$$
+Note that you need to start with a **non-zero** vector $\Vn{x}{0}$.
+
+**Some examples of the power method in statistics:**
+
+- Allen, Grosenick, and Taylor, "A Generalized Least Squares Matrix Decomposition," Journal of the American Statistical Association, Theory & Methods, 109:505, 145-159, 2014.
+
+- Sun, Lu, Liu, and Cheng, "Provable sparse tensor decomposition," Journal of the Royal Statistical Society, Series B, 889:916, 2017 
+
+
+
+Please complete the following steps.
+
+**Step 0:** Make an R package entitled "your_unityidST758". My unity id is "ecchi", so I would make a package entitled ecchiST758. For the following functions, save them all in a file called `homework1.R` and put this file in the R subdirectory of your package.
+
+**Step 1:** Write a function "power_method_dense" that applies the power method to a dense matrix. Terminate the procedure when the relative change in the estimate of the eigenvector falls below a specified tolerance `tol`, i.e. stop iterating when
+
+$$
+\lVert \V{x} - \V{x}_{\text{last}} \rVert_2 < \text{tol} \times \lVert \V{x}_{\text{last}}\rVert_2.
+$$
+
+```{r, echo=TRUE}
+#' Power Method for dense matrices
+#' 
+#' \code{power_method_dense} applies the power method to estimate
+#' the eigenvector of a dense matrix associated with its largest eigenvector.
+#' 
+#' @param A The input matrix
+#' @param x initial guess
+#' @param max_iter maximum number of iterations
+#' @param tol relative error stopping criterion
+#' @export
+# power_method_dense <- function(A, x, max_iter, tol) {
+#   
+# }
+```
+Your function should return a vector estimating the eigenvector of the input matrix which corresponds to its largest eigenvalue. This vector should have unit Euclidean length.
+
+\newpage
+
+**Step 2:** Write a function "power_method_sparse" applies the power method to a sparse matrix. Use the `Matrix` package; add it to the list of dependencies in the DESCRIPTION file. It should return an error message if
+
+- the input matrix is not sparse.
+
+```{r, echo=TRUE}
+#' Power Method for sparse matrices
+#' 
+#' \code{power_method_sparse} applies the power method to estimate
+#' the eigenvector of a sparse matrix associated with its largest eigenvector.
+#' 
+#' @param A The input matrix
+#' @param x initial guess
+#' @param max_iter maximum number of iterations
+#' @param tol relative error stopping criterion
+#' @export
+# power_method_sparse <- function(A, x, max_iter, tol) {
+#   
+# }
+```
+Your function should return a vector estimating the eigenvector of the input matrix which corresponds to its largest eigenvalue. This vector should have unit Euclidean length.
+
+\newpage
+
+**Step 3:** Write a function "power_method_low_rank" applies the power method to a matrix $\M{A} = \M{U}\M{V}\Tra$. It should return an error message if
+
+- the two factor matrices $\M{U}$ and $\M{V}$ do not have the same number of columns.
+
+```{r, echo=TRUE}
+#' Power Method for low rank matrices
+#' 
+#' \code{power_method_low_rank} applies the power method to estimate
+#' the eigenvector of a low rank matrix associated with its largest eigenvector.
+#' 
+#' @param U The left input factor matrix
+#' @param V The right input factor matrix
+#' @param x initial guess
+#' @param max_iter maximum number of iterations
+#' @param tol relative error stopping criterion
+#' @export
+# power_method_low_rank <- function(U, V, x, max_iter, tol) {
+#   
+# }
+```
+Your function should return a vector estimating the eigenvector of the input matrix which corresponds to its largest eigenvalue. This vector should have unit Euclidean length.
+
+\newpage
+
+**Step 4:** Write a function "power_method_sparse_plus_low_rank" applies the power method to a matrix $\M{A} = \M{S} + \M{U}\M{V}\Tra$ that is the sum of a sparse matix $\M{S}$ and low rank matrix $\M{U}\M{V}\Tra$. It should return an error message if
+
+- the input matrix $\M{S}$ is not sparse.
+- the two factor matrices $\M{U}$ and $\M{V}$ do not have the same number of columns.
+
+```{r, echo=TRUE}
+#' Power Method for sparse + low rank matrices
+#' 
+#' \code{power_method_sparse_plus_low_rank} applies the power method to estimate
+#' the eigenvector of a sparse + low rank matrix associated with its largest eigenvector.
+#' 
+#' @param S sparse input matrix term
+#' @param U The left input factor matrix term
+#' @param V The right input factor matrix term
+#' @param x initial guess
+#' @param max_iter maximum number of iterations
+#' @param tol relative error stopping criterion
+#' @export
+# power_method_sparse_plus_low_rank <- function(S, U, V, x, max_iter, tol) {
+#   
+# }
+```
+Your function should return a vector estimating the eigenvector of the input matrix which corresponds to its largest eigenvalue. This vector should have unit Euclidean length. 
+
+\newpage
+
+**Step 5:** Use your `power_method_dense` function to compute the largest eigenvalue of the following matrices. Compare your answers to what is provided by the `eigen` function in R. Choose `max_iter` and `tol` so that your solution matches `eigen`'s output up to 3 decimal places.
+
+```{r setup}
+library(sgxuST758)
+library(Matrix)
+library(knitr)
+```
+
+```{r, echo=TRUE,cache=TRUE}
+set.seed(12345)
+n <- 1e3
+A <- matrix(rnorm(n**2), n, n)
+A <- A + t(A)
+x = matrix(rnorm(n),nrow=n)
+eg = as.matrix(power_method_dense(A,x,1e5,1e-4))
+my_ev_a=round(as.numeric((t(eg)%*%A%*%eg)/(t(eg)%*%eg)),4)
+eig = eigen(A)$values
+r_ev_a = round(eig[which.max(abs(eig))],4)
+
+rm(A)
+B <- matrix(rnorm(n**2), n, n)
+B <- B + t(B)
+x = matrix(rnorm(n),nrow=n)
+eg = as.matrix(power_method_dense(B,x,1e5,1e-4))
+my_ev_b=round(as.numeric((t(eg)%*%B%*%eg)/(t(eg)%*%eg)),4)
+eig = eigen(B)$values
+r_ev_b = round(eig[which.max(abs(eig))],4)
+
+rm(B)
+C <- matrix(rnorm(n**2), n, n)
+C <- C + t(C)
+x = matrix(rnorm(n),nrow=n)
+eg = as.matrix(power_method_dense(C,x,1e5,1e-4))
+my_ev_c=round(as.numeric((t(eg)%*%C%*%eg)/(t(eg)%*%eg)),4)
+eig = eigen(C)$values
+r_ev_c = round(eig[which.max(abs(eig))],4)
+
+```
+
+|  Matrix     |  Power's value   |   **Eigen**'s value |
+| :---------: | :--------------: | :----------------:  |
+| A           |  `r my_ev_a`     |  `r r_ev_a`         |   
+| B           |  `r my_ev_b`     |  `r r_ev_b`         | 
+| C           |  `r my_ev_c`     |  `r r_ev_c`         |
+  
+
+
+**Step 6:** Use your `power_method_sparse` function to compute the largest eigenvalue of the following matrices. Compare your answers to what is provided by the `eigen` function in R. Choose `max_iter` and `tol` so that your solution matches `eigen`'s output up to 3 decimal places. **Hint:** You may need to convert a sparse matrix into a dense one before passing to `eigen`.
+
+```{r, echo=TRUE, cache=TRUE}
+rm(list=ls())
+set.seed(12345)
+n <- 1e3
+nnz <- 0.1*n
+ix <- sample(1:n, size = nnz, replace = FALSE)
+A <- Matrix(0, nrow=n, ncol=n, sparse=TRUE)
+A[ix] <- rnorm(nnz)
+A <- A + t(A)
+A[1,1] <- 10
+x = matrix(rnorm(n),nrow=n)
+eg = power_method_sparse(A,x,1e6,1e-3)
+eg = as.matrix(eg)
+A = as.matrix(A)
+sp_ev_a=round(as.numeric(t(eg)%*%A%*%eg)/(t(eg)%*%eg),4)
+eig = eigen(A)$values
+r_sp_ev_a = round(eig[which.max(abs(eig))],4)
+
+ix <- sample(1:n, size = nnz, replace = FALSE)
+B <- Matrix(0, nrow=n, ncol=n, sparse=TRUE)
+B[ix] <- rnorm(nnz)
+B <- B + t(B)
+B[1,1] <- 10
+x = matrix(rnorm(n),nrow=n)
+eg = power_method_sparse(B,x,1e6,1e-3)
+eg = as.matrix(eg)
+B = as.matrix(B)
+sp_ev_b=round(as.numeric(t(eg)%*%B%*%eg)/(t(eg)%*%eg),4)
+eig = eigen(B)$values
+r_sp_ev_b = round(eig[which.max(abs(eig))],4)
+
+ix <- sample(1:n, size = nnz, replace = FALSE)
+C <- Matrix(0, nrow=n, ncol=n, sparse=TRUE)
+C[ix] <- rnorm(nnz)
+C <- C + t(C)
+C[1,1] <- 10
+x = matrix(rnorm(n),nrow=n)
+eg = power_method_sparse(C,x,1e6,1e-3)
+eg = as.matrix(eg)
+C = as.matrix(C)
+sp_ev_c=round(as.numeric(t(eg)%*%C%*%eg)/(t(eg)%*%eg),4)
+eig = eigen(C)$values
+r_sp_ev_c = round(eig[which.max(abs(eig))],4)
+
+```
+
+|  Matrix     |  Power's value   |   **Eigen**'s value |
+| :---------: | :--------------: | :----------------:  |
+| A           |  `r sp_ev_a`     |  `r r_sp_ev_a`      |   
+| B           |  `r sp_ev_b`     |  `r r_sp_ev_b`      | 
+| C           |  `r sp_ev_c`     |  `r r_sp_ev_c`      |
+
+\newpage
+
+**Step 7:** Use your `power_method_low_rank` function to compute the largest eigenvalue of the matrices $\M{U}_1\M{V}_1\Tra, \M{U}_2\M{V}_2\Tra,$ and $\M{U}_3\M{V}_3\Tra$ defined below. Compare your answers to what is provided by the `eigen` function in R. Choose `max_iter` and `tol` so that your solution matches `eigen`'s output up to 3 decimal places.
+
+```{r, echo=TRUE}
+rm(list=ls())
+set.seed(12345)
+n <- 1e3
+k <- 10
+U1 <- V1 <- matrix(rnorm(n*k), n, k)
+x = matrix(rnorm(n),nrow=n)
+eg = power_method_low_rank(U1,V1,x,1e5,1e-4)
+A = U1%*%t(V1)
+my_ev_u1=round(as.numeric((t(eg)%*%A%*%eg)/(t(eg)%*%eg)),4)
+eig = eigen(A)$values
+r_ev_u1 = round(eig[which.max(abs(eig))],4)
+
+
+U2 <- V2 <- matrix(rnorm(n*k), n, k)
+x = matrix(rnorm(n),nrow=n)
+eg = power_method_low_rank(U2,V2,x,1e5,1e-4)
+A = U2%*%t(V2)
+my_ev_u2=round(as.numeric((t(eg)%*%A%*%eg)/(t(eg)%*%eg)),4)
+eig = eigen(A)$values
+r_ev_u2 = round(eig[which.max(abs(eig))],4)
+
+U3 <- V3 <- matrix(rnorm(n*k), n, k)
+x = matrix(rnorm(n),nrow=n)
+eg = power_method_low_rank(U3,V3,x,1e5,1e-4)
+A = U3%*%t(V3)
+my_ev_u3=round(as.numeric((t(eg)%*%A%*%eg)/(t(eg)%*%eg)),4)
+eig = eigen(A)$values
+r_ev_u3 = round(eig[which.max(abs(eig))],4)
+
+```
+
+| Matrices    |  Power's value   | **Eigen**'s value |
+| :---------: | :--------------: | :----------------:   |
+| $U_1,V_1$   | `r my_ev_u1`     | `r r_ev_u1`          |  
+| $U_2,V_2$   | `r my_ev_u2`     | `r r_ev_u2`          |
+| $U_3,V_3$   | `r my_ev_u3`     | `r r_ev_u3`          |
+
+
+**Step 7:** Estimate the largest eigenvalue of the following matrix.
+
+$$
+\M{A} = \M{S} + \V{u}\V{u}\Tra.
+$$
+
+```{r, echo=TRUE}
+rm(list=ls())
+set.seed(12345)
+n <- 1e7
+nnz <- 1e-5*n
+ix <- sample(1:n, size = nnz, replace = FALSE)
+S <- Matrix(0, nrow=n, ncol=n, sparse=TRUE)
+S[ix] <- rnorm(nnz)
+S <- S + t(S)
+
+
+u <- matrix(rnorm(n), ncol=1)
+x = matrix(rnorm(n),ncol=1)
+eg = power_method_sparse_plus_low_rank(S,u,u,x,1e5,1e-4)
+ans=(t(eg)%*%S%*%eg+(t(eg)%*%u)%*%(t(u)%*%eg))/(t(eg)%*%eg)
+my_ev_est = round(as.numeric(ans))
+my_ev_est
+
+
+
+```
+
+The largest eigenvalue calculated using power method is 10004786 .
+
+What happens if you attempt to compute the largest eigenvalue using `eigen`? If you try using `power_method_dense`?
+
+**Answer**: `eigen` will not work because the computer would not have the memory to store a $10^7$ by $10^7$ dense matrix. Same for `power_method_dense` since $uu\Tra$ is not applicable.
+
+**An example of sparse + low-rank matrices in statistics: Matrix Completion**
+
+- Hastie, Mazumder, Lee, and Zadeh, "Matrix Completion and Low-Rank SVD via Fast Alternating
+Least Squares," Journal of Machine Learning Research, 3367-3402, 2015
