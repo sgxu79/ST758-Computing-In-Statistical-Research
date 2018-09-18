@@ -5,7 +5,7 @@ Version: 0.1.0
 Author: Steven Xu <sgxu@ncsu.edu>
 Maintainer: Steven Xu <sgxu@ncsu.edu>
 Description: Apply power method on an input matrix
-Dependens: R (>= 3.4.2), Matrix, foreach, parallel, doParallel
+Dependencies: R (>= 3.4.2), Matrix
 License: NCSU
 Encoding: UTF-8
 LazyData: true
