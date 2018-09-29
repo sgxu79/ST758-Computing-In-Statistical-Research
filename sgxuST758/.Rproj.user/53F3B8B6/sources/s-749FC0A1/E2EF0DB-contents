@@ -1,0 +1,4 @@
+library(testthat)
+library(sgxuST758)
+
+test_check("sgxuST758")

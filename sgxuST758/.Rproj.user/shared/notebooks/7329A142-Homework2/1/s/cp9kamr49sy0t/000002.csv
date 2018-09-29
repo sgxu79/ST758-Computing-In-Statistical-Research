@@ -1,0 +1,4 @@
+"0","x = c(10,50,seq(100:500,100))
+"
+"2","Error in seq.default(100:500, 100) : 'from' must be of length 1
+"

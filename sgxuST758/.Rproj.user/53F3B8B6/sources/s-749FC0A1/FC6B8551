@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1538072199877.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1938954412",
+    "id" : "FC6B8551",
+    "lastKnownWriteTime" : 1538102102,
+    "last_content_update" : 1538102102210,
+    "path" : "D:/NCSU Rcode/sgxuST758/tests/testthat/test-sweep.R",
+    "project_path" : "tests/testthat/test-sweep.R",
+    "properties" : {
+        "cursorPosition" : "38,0",
+        "scrollLine" : "7",
+        "tempName" : "Untitled2"
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

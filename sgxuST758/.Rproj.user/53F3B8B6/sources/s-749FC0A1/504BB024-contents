@@ -1,0 +1,295 @@
+---
+title: "Homework 2"
+author: "Steven Xu"
+date: "Due @ 11:59pm on October 1, 2018"
+header-includes:
+  - \usepackage{bm}
+  - \newcommand{\Real}{\mathbb{R}}
+  - \newcommand{\sweep}{{\bf sweep}\,}
+  - \newcommand{\dom}{{\bf dom}\,}
+  - \newcommand{\sign}{{\bf sign}\,}
+  - \newcommand{\Tra}{^{\sf T}} % Transpose
+  - \newcommand{\Inv}{^{-1}} % Inverse
+  - \def\vec{\mathop{\rm vec}\nolimits}
+  - \def\sweep{\mathop{\rm sweep}\nolimits}
+  - \newcommand{\diag}{\mathop{\rm diag}\nolimits}
+  - \newcommand{\tr}{\operatorname{tr}} % Trace
+  - \newcommand{\epi}{\operatorname{epi}} % epigraph
+  - \newcommand{\V}[1]{{\bm{\mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\VE}[2]{\MakeLowercase{#1}_{#2}} % vector element
+  - \newcommand{\Vn}[2]{\V{#1}^{(#2)}} % n-th vector
+  - \newcommand{\Vtilde}[1]{{\bm{\tilde \mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\Vhat}[1]{{\bm{\hat \mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\VtildeE}[2]{\tilde{\MakeLowercase{#1}}_{#2}} % vector element
+  - \newcommand{\M}[1]{{\bm{\mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\ME}[2]{\MakeLowercase{#1}_{#2}} % matrix element
+  - \newcommand{\Mtilde}[1]{{\bm{\tilde \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mhat}[1]{{\bm{\hat \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mcheck}[1]{{\bm{\check \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mbar}[1]{{\bm{\bar \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mn}[2]{\M{#1}^{(#2)}} % n-th matrix
+output: pdf_document
+---
+
+```{r setup, include=FALSE, warning=F}
+knitr::opts_chunk$set(echo = TRUE)
+library(sgxuST758)
+```
+
+**Part 1.** Let's investigate the limiting behavior of the power method you implemented in Homework 1. Suppose we have a matrix $\M{A} \in \Real^{n \times n}$ that is symmetric and has eigendecomposition $\M{A} = \M{U}\M{\Lambda}\M{U}\Tra$ and that $\M{A}$ possesses a **unique** largest in magnitude eigenvalue. The eigendecomposition has the following properties:
+
+1. $\M{U} \in \Real^{n \times n}$ has orthonormal columns, i.e. $\M{U}\Tra\M{U} = \M{I}$, and therefore the columns $\V{u}_1, \ldots, \V{u}_n$ form a basis for $\Real^n$
+2. Without loss of generality, $\M{\Lambda}$ is a diagonal matrix such that $\lvert \lambda_1 \rvert > \lvert \lambda_2 \rvert \geq \lvert \lambda_3 \rvert \geq \cdots \geq \lvert \lambda_n \rvert$. 
+
+The power method iterates as follows.
+
+$$
+\Vn{x}{k+1} \gets \frac{\M{A}\Vn{x}{k}}{\lVert \M{A}\Vn{x}{k}\rVert_2}
+$$
+
+Suppose we start with a vector $\Vn{x}{0}$ such that $\V{u}_1\Tra\Vn{x}{0} \neq 0$.
+
+
+1. Argue that $\Vn{x}{0} = c_1 \V{u}_1 + c_2 \V{u}_2 + \cdots + c_n \V{u}_n$ for some vector $\V{c} \in \Real^n$. Write the vector $\V{c}$ as a function of $\M{U}$ and $\Vn{x}{0}$. In other words, how do you compute $\V{c}$ from $\M{U}$ and $\Vn{x}{0}$?
+
+**Answer:**
+
+We know that  the columns $\V{u}_1, \ldots, \V{u}_n$ form a basis for $\Real^n$, i.e. $C(\M{U})=\Real^n$. Since $\Vn{x}{0} \in \Real^n$, we have $\Vn{x}{0} \ \in C(\M{U})$, i.e. $\exists \ \V{c} \ \in \ \Real^n$ s.t. $\Vn{x}{0}=\M{U}\V{c}$ or $\Vn{x}{0}=\sum^n_{i=1}c_i\V{u}_i$. Pre-multiply both sides by $\M{U}\Tra$ we have $\V{c}=\M{U}\Tra\Vn{x}{0}$.
+
+2. Show that
+
+$$
+\Vn{x}{k} = \frac{c_1 \V{u}_1 + \sum_{j=2}^n c_j \left(\frac{\lambda_j}{\lambda_1} \right)^k\V{u}_j}{\left \lVert c_1 \V{u}_1 + \sum_{j=2}^n c_j \left(\frac{\lambda_j}{\lambda_1} \right)^k\V{u}_j \right\rVert_2} \sign(\lambda_1)^k,
+$$
+where
+$$
+\sign(\lambda) = \begin{cases}
+1 & \text{if $\lambda > 0$} \\
+-1 & \text{if $\lambda < 0$} \\
+0 & \text{if $\lambda = 0$.}
+\end{cases}
+$$
+
+**Answer:**
+
+Prove by induction:
+
+When k=1, 
+
+$$
+\begin{aligned}
+\Vn{x}{1} &= \frac{\M{A}\Vn{x}{0}}{\lVert \M{A}\Vn{x}{0}\rVert_2} \\ \\
+&= \frac{\M{A}\sum_{i=1}^nc_i\V{u_i}}{\lVert \M{A}\sum_{i=1}^nc_i\V{u_i}\rVert_2} \\ \\
+&= \frac{\sum_{i=1}^nc_i\M{A}\V{u_i}}{\lVert \sum_{i=1}^nc_i\M{A}\V{u_i}\rVert_2} \\ \\
+\because & \ \V{u}_1, \ldots, \V{u}_n \  \text{are eigenvectors of } \M{A} \\ \\
+\therefore & \ \M{A}\V{u}_i = \lambda_i\V{u}_i \ \forall \ i=1, \ldots, n \\ \\
+\Vn{x}{1} &= \frac{\sum_{i=1}^nc_i\lambda_i\V{u}_i}{\left \lVert \sum_{i=1}^nc_i\lambda_i\V{u}_i \right\rVert_2} \\ \\
+&= \frac{c_1\lambda_1\V{u}_1+\sum_{j=2}^nc_j\lambda_j\V{u}_j}{\left \lVert c_1\lambda_1\V{u}_1+\sum_{j=2}^nc_j\lambda_j\V{u}_j \right\rVert_2} \\ \\
+&= \frac{\frac{1}{\lambda_1}(c_1\lambda_1\V{u}_1+\sum_{j=2}^nc_j\lambda_j\V{u}_j)}{\frac{1}{\lambda_1}\left \lVert c_1\lambda_1\V{u}_1+\sum_{j=2}^nc_j\lambda_j\V{u}_j \right\rVert_2} \\ \\
+\text{By construction} & \ \frac{1}{\lambda_1}  = \sign(\lambda_1)\lvert \frac{1}{\lambda_1} \rvert, \ \text{assuming } \lambda_1 \ne 0\\ \\
+\therefore \ \Vn{x}{1} &=\frac{c_1\V{u}_1+\sum_{j=2}^nc_j\left(\frac{\lambda_j}{\lambda_1} \right)\V{u}_j}{\lvert \frac{1}{\lambda_1} \rvert\left \lVert c_1\lambda_1\V{u}_1+\sum_{j=2}^nc_j\lambda_j\V{u}_j \right\rVert_2} \sign(\lambda_1)\\ \\ 
+&=\frac{c_1\V{u}_1+\sum_{j=2}^nc_j\left(\frac{\lambda_j}{\lambda_1} \right)\V{u}_j}{\left \lVert c_1\V{u}_1+\sum_{j=2}^nc_j\left(\frac{\lambda_j}{\lambda_1} \right)\V{u}_j \right\rVert_2} \sign(\lambda_1)\\ \\
+\end{aligned}
+$$
+
+So the equation holds when k=1.
+
+Suppose it holds when k=m, i.e.
+
+$$
+\begin{aligned}
+\Vn{x}{m} &= \frac{c_1 \V{u}_1 + \sum_{j=2}^n c_j \left(\frac{\lambda_j}{\lambda_1} \right)^m\V{u}_j}{\left \lVert c_1 \V{u}_1 + \sum_{j=2}^n c_j \left(\frac{\lambda_j}{\lambda_1} \right)^m\V{u}_j \right\rVert_2} \sign(\lambda_1)^m \\ \\
+\text{Let} \ K &= \left \lVert c_1 \V{u}_1 + \sum_{j=2}^n c_j \left(\frac{\lambda_j}{\lambda_1} \right)^m\V{u}_j \right\rVert_2 \\\\ 
+\Vn{x}{m+1} &= \frac{\M{A}\Vn{x}{m}}{\lVert \M{A}\Vn{x}{m}\rVert_2} \\\\
+\M{A}\Vn{x}{m}&= \M{A}\frac{c_1 \V{u}_1 + \sum_{j=2}^n c_j \left(\frac{\lambda_j}{\lambda_1} \right)^m\V{u}_j}{K}\sign(\lambda_1)^m \\\\
+&=\frac{c_1\lambda_1 \V{u}_1 + \sum_{j=2}^n c_j \left(\frac{\lambda_j}{\lambda_1} \right)^m\lambda_j\V{u}_j}{K}\sign(\lambda_1)^m \\\\
+&=\frac{\lambda_1(c_1\ \V{u}_1 + \sum_{j=2}^n c_j \left(\frac{\lambda_j}{\lambda_1} \right)^{m+1}\V{u}_j)}{K}\sign(\lambda_1)^m \\\\
+\because \ &\sqrt{\sign(\lambda_1)^2} = 1, \ K>0 \\\\
+\therefore \ &\sqrt{\left(\frac{\sign(\lambda_1)}{K}\right)^2} = \frac{1}{K}\\\\
+\ \lVert \M{A}\Vn{x}{m} \rVert_2 &= \frac{1}{K}\lVert \lambda_1 (\V{u}_1 + \sum_{j=2}^n c_j \left(\frac{\lambda_j}{\lambda_1} \right)^{m+1}\V{u}_j) \rVert_2 \\\\
+& =  \frac{\lvert \lambda_1 \rvert}{K}\lVert  \V{u}_1 + \sum_{j=2}^n c_j \left(\frac{\lambda_j}{\lambda_1} \right)^{m+1}\V{u}_j \rVert_2 \\\\
+\therefore \ \Vn{x}{m+1}&= \frac{\frac{\lambda_1}{K}(c_1 \V{u}_1 + \sum_{j=2}^n c_j \left(\frac{\lambda_j}{\lambda_1} \right)^{m+1}\V{u}_j)}{\frac{\lvert\lambda_1\rvert}{K}\left \lVert c_1 \V{u}_1 + \sum_{j=2}^n c_j \left(\frac{\lambda_j}{\lambda_1} \right)^{m+1}\V{u}_j \right\rVert_2} \sign(\lambda_1)^m\\\\
+&= \frac{c_1 \V{u}_1 + \sum_{j=2}^n c_j \left(\frac{\lambda_j}{\lambda_1} \right)^{m+1}\V{u}_j}{\left \lVert c_1 \V{u}_1 + \sum_{j=2}^n c_j \left(\frac{\lambda_j}{\lambda_1} \right)^{m+1}\V{u}_j \right\rVert_2} \sign(\lambda_1)^{m+1}
+\end{aligned}
+$$
+
+Thus by induction the equality holds $\forall \ k\ge1$.
+
+3. Argue that
+
+$$
+\lVert \Vn{x}{k} - \sign(c_1)\sign(\lambda_1)^k\V{u}_1 \rVert_2 \rightarrow 0.
+$$
+
+**Hint:** Use the fact from 2 above and the triangle inequality.
+
+**Answer:**
+
+
+
+$$
+\begin{aligned}
+\lVert \Vn{x}{k} - \sign(c_1)\sign(\lambda_1)^k\V{u}_1 \rVert_2 &= \left\lVert \frac{c_1 \V{u}_1 + \sum_{j=2}^n c_j \left(\frac{\lambda_j}{\lambda_1} \right)^k\V{u}_j}{\left \lVert c_1 \V{u}_1 + \sum_{j=2}^n c_j \left(\frac{\lambda_j}{\lambda_1} \right)^k\V{u}_j \right\rVert_2} \sign(\lambda_1)^k - \sign(c_1)\sign(\lambda_1)^k\V{u}_1 \right\rVert_2 \\\\
+&=\left\lVert \frac{c_1 \V{u}_1 + \sum_{j=2}^n c_j \left(\frac{\lambda_j}{\lambda_1} \right)^k\V{u}_j}{\left \lVert c_1 \V{u}_1 + \sum_{j=2}^n c_j \left(\frac{\lambda_j}{\lambda_1} \right)^k\V{u}_j \right\rVert_2}  - \sign(c_1)\V{u}_1 \right\rVert_2 \\\\
+\because &\ \lvert \lambda_1\rvert>\lvert \lambda_j\rvert \ \forall \ j=2,\ldots,n \\\\
+\therefore &\left( \frac{\lambda_j}{\lambda_1}\right)^k \rightarrow 0 \ \text{as k } \rightarrow \infty \ \forall \ j=2,\ldots,n\\\\
+\therefore \lVert \Vn{x}{k} - \sign(c_1)\sign(\lambda_1)^k\V{u}_1 \rVert_2 & \rightarrow \left\lVert \frac{c_1 \V{u}_1 }{\left \lVert c_1 \V{u}_1  \right\rVert_2}  - \sign(c_1)\V{u}_1 \right\rVert_2 \\\\
+\text{Since}\ \M{U} &\ \text{is an orthonormal matrix}, \ \lVert\V{u_1}\rVert_2 = 1 \\\\
+\therefore \lVert \Vn{x}{k} - \sign(c_1)\sign(\lambda_1)^k\V{u}_1 \rVert_2 & \rightarrow \left\lVert \frac{c_1 \V{u}_1 }{ \lvert c_1 \rvert}  - \sign(c_1)\V{u}_1 \right\rVert_2 = \lVert \sign(c_1) \V{u}_1  - \sign(c_1)\V{u}_1 \rVert_2 = 0 \\\\
+\therefore &\lVert \Vn{x}{k} - \sign(c_1)\sign(\lambda_1)^k\V{u}_1 \rVert_2  \rightarrow 0 \ \text{as} \ k\rightarrow \infty
+\end{aligned}
+$$
+
+\newpage
+
+**Part 2.** The Sweep Operator
+
+You will next add an implementation of the sweep operator to your R package. For the following functions, save them all in a file called `homework2.R` and put this file in the R subdirectory of your package.
+
+Please complete the following steps.
+
+**Step 1:** Write a function `sweep_k` that applies the sweep operator to a symmetric matrix on the $k$th diagonal entry if possible. It should return an error message if
+
+- the $k$th diagonal entry is not positive
+- the input matrix is not symmetric
+
+```{r, echo=TRUE}
+#' Sweep k
+#' 
+#' \code{sweep_k} applies the sweep operator to a symmetric matrix
+#' on the kth diagonal entry if it is possible.
+#' 
+#' @param A The input symmetric matrix
+#' @param k Diagonal index on which to sweep
+#' @export
+# sweep_k <- function(A, k) {
+# 
+# }
+```
+Your function should return the matrix $\Mhat{A} = \sweep(\M{A}, k)$ if it is possible to sweep.
+
+**Step 2:** Write a function `isweep_k` that applies the inverse sweep operator to a symmetric matrix on the $k$th diagonal entry if possible. It should return an error message if
+
+- the $k$th diagonal entry is not negative
+- the input matrix is not symmetric
+
+```{r, echo=TRUE}
+#' Inverse Sweep k
+#' 
+#' \code{isweep_k} applies the inverse sweep operator to a symmetric matrix
+#' on the kth diagonal entry if it is possible.
+#' 
+#' @param A The input symmetric matrix
+#' @param k Diagonal index on which to sweep
+#' @export
+# isweep_k <- function(A, k) {
+#   
+# }
+```
+Your function should return the matrix $\Mhat{A} = \sweep\Inv(\M{A}, k)$ if it is possible to sweep.
+
+\newpage
+
+**Step 3:** Write a function `sweep` that is a wrapper function for your `sweep_k` function. This function should apply the sweep operator on a specified set of diagonal entries. It should return an error message if
+
+- the $k$th diagonal entry is not positive
+- the input matrix is not symmetric
+
+Also, it should by default, if a set of diagonal entries is not specified, apply the Sweep operator on all diagonal entries (if possible).
+
+```{r, echo=TRUE}
+#' Sweep
+#' 
+#' @param A The input symmetric matrix
+#' @param k Diagonal index entry set on which to sweep
+#' @export
+# sweep <- function(A, k=NULL) {
+#   
+# }
+```
+
+**Step 4:** Write a function `isweep` that is a wrapper function for your `isweep_k` function. This function should apply the sweep operator on a specified set of diagonal entries. It should return an error message if
+
+- the $k$th diagonal entry is not negative
+- the input matrix is not symmetric
+
+Also, it should by default, if a set of diagonal entries is not specified, apply the Inverse Sweep operator on all diagonal entries (if possible).
+
+```{r, echo=TRUE}
+#' Inverse Sweep
+#' 
+#' @param A The input symmetric matrix
+#' @param k Diagonal index entry set on which to sweep
+#' @export
+# isweep <- function(A, k=NULL) {
+#   
+# }
+```
+
+**Step 4:** Write a unit test function `test-sweep` that
+
+- checks that `sweep_k` and `isweep_k` do indeed undo the effects of each other.
+- checks that `sweep` and `isweep` do indeed undo the effects of each other.
+- checks the correctness of your sweep operator on a small random positive definite matrix $\M{A}$. To create such a matrix, use something like the following code:
+```
+n <- 10
+u <- matrix(rnorm(n), ncol=1)
+A <- tcrossprod(u)
+diag(A) <- diag(A) + 1
+```
+
+Recall that $\sweep(\M{A}, 1:n) = -\M{A}\Inv$. So, to check for correctness, use the following measure:
+
+$$
+\lVert \M{A} \times \sweep(\M{A}, 1:n) + \M{I} \rVert \approx 0.
+$$
+What constitutes approximately zero? That's a very good question. Please try experimenting with different tolerances to find a tolerance that correctly identifies when your implementation of the sweep operator is working. If you experiment enough, you will get a sense for when the code is correct up to "numerical noise."
+
+\newpage
+
+**Step 5:** Use your `sweep` function to compute the regression coefficients in the following multiple linear regression problem. Let's keep things simple and not include the intercept in the model. Compare your answers to what is provided by the `lm` function in R.
+
+```{r, echo=TRUE}
+set.seed(12345)
+n <- 1000
+p <- 10
+X <- matrix(rnorm(n*p), n, p)
+beta <- matrix(rnorm(p), p, 1)
+y <- X%*%beta + matrix(rnorm(n), n, 1)
+A = matrix(rep(0,(p+1)^2),nrow=(p+1))
+A[1:p,1:p] = t(X)%*%X
+A[1:p,p+1] = t(X)%*%y
+A[p+1,1:p] = t(y)%*%X
+A[p+1,p+1] = t(y)%*%y
+sol = sweep(A,1:p)
+fit= lm(y~0+X)
+lm_coef = matrix(as.numeric(fit$coefficients),ncol=1)
+sw_coef = as.matrix(sol[1:p,p+1],ncol=1)
+norm(lm_coef-sw_coef)
+
+```
+
+We can see that the sweep operator performs really well. The difference is on a scale of $10^{-15}$ for this example.
+
+**Step 6:** Apply your `sweep` function on symmetric matrices of sizes $n = 100, 200, 300, 400$ and plot the run times versus $n$. To get the run time use `system.out`. You can use the third argument of the output of `system.out`. Does the run time scale as you'd expect?
+
+```{r, echo=TRUE, cache=TRUE}
+x = c(10,50,seq(100,500,100))
+time = function(size){
+  n <- size
+  u <- matrix(rnorm(n), ncol=1)
+  A <- tcrossprod(u)
+  diag(A) <- diag(A) + 1
+  t = system.time(sweep(A))[3]
+  return(t)
+}
+time_vec = as.numeric(sapply(x,time))
+comp = lm(time_vec~I(x^3))
+summary(comp)$r.squared
+plot(x,time_vec,type="l",xlab = "Matrix size", ylab = "Time elapsed", main = "Sweep time", col= "Steel Blue")
+x_new = data.frame(x=seq(10,500,10))
+points(seq(10,500,10),predict(comp,newdata=x_new),pch=20,cex=0.6)
+legend("top",legend=c("actual run time","cubic fit"),lty=c(1,NA),pch=c(NA, 20) ,col=c("steel blue","black"))
+```
+
+From class we know that the computation complexity to sweep a whole matrix is of $O(n^3)$. By fitting a cubic linear regression we find $R^2$ to be almost 1. Together with the fitted line we see that the computational complexity is indeed of $O(n^3)$.
