@@ -5,14 +5,14 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "1938954412",
+    "hash" : "0",
     "id" : "FC6B8551",
     "lastKnownWriteTime" : 1538102102,
     "last_content_update" : 1538102102210,
     "path" : "D:/NCSU Rcode/sgxuST758/tests/testthat/test-sweep.R",
     "project_path" : "tests/testthat/test-sweep.R",
     "properties" : {
-        "cursorPosition" : "38,0",
+        "cursorPosition" : "15,2",
         "scrollLine" : "7",
         "tempName" : "Untitled2"
     },

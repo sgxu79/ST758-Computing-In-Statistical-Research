@@ -9,9 +9,14 @@
 #' @param k Diagonal index on which to sweep
 #' @export
 sweep_k <- function(A, k) {
+  if(!is(A,'matrix')) stop(" 'A' is not of matrix format")
+  if(k<=0) stop("k has to be positive")
   if(all.equal(A,t(A))!=TRUE) stop("Matrix not symmetric")
   if(A[k,k]<=0) stop("kth diagonal entry not positive")
   size = dim(A)[1]
+  if(size==1){
+    return(-1/A)
+  }
   akk = A[k,k]
   A[lower.tri(A)] = 0
   if(k>1){
@@ -50,6 +55,8 @@ sweep_k <- function(A, k) {
 #' @param k Diagonal index on which to sweep
 #' @export
 isweep_k <- function(A, k) {
+  if(!is(A,'matrix')) stop(" 'A' is not of matrix format")
+  if(k<=0) stop("k has to be positive")
   if(all.equal(A,t(A))!=TRUE) stop("Matrix not symmetric")
   if(A[k,k]>=0) stop("kth diagonal entry not negative")
   A = -1*A
@@ -64,6 +71,7 @@ isweep_k <- function(A, k) {
 #' @param k Diagonal index entry set on which to sweep
 #' @export
 sweep <- function(A, k=NULL) {
+  if(!is(A,'matrix')) stop(" 'A' is not of matrix format")
   if(all.equal(A,t(A))!=TRUE) stop("Matrix not symmetric")
   if(is.null(k)){
     if(!all(diag(A)>0)) stop("Matrix is not positive definite")
@@ -88,6 +96,7 @@ sweep <- function(A, k=NULL) {
 #' @param k Diagonal index entry set on which to sweep
 #' @export
 isweep <- function(A, k=NULL) {
+  if(!is(A,'matrix')) stop(" 'A' is not of matrix format")
   if(all.equal(A,t(A))!=TRUE) stop("Matrix not symmetric")
   if(is.null(k)){
     if(!all(diag(A)<0)) stop("Matrix is not negative definite")
