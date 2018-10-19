@@ -1,0 +1,3 @@
+"0","time_vec = c(time_vec2,time_vec4,time_vec8)"
+"0","k_vec = rep(c(2,4,8),each=length(x))"
+"0","plot(c(2,4,8),time_vec[c(1,5,9)],type=""l"",ylim=c(0,0.007),xlab=""band width"",ylab=""run time"")"

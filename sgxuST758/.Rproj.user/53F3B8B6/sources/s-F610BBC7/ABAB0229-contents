@@ -1,0 +1,73 @@
+
+
+#' Sweep k
+#'
+#' \code{sweep_k} applies the sweep operator to a symmetric matrix
+#' on the kth diagonal entry if it is possible.
+#'
+#' @param A The input symmetric matrix
+#' @param k Diagonal index on which to sweep
+#' @export
+sweep_k <- function(A, k) {
+  if(!all.equal(A,t(A))) stop("Matrix not symmetric")
+  if(A[k,k]<=0) stop("kth diagonal entry not positive")
+  size = dim(A)[1]
+  akk = A[k,k]
+  A[lower.tri(A)] = 0
+  sw_row = A[k,(k+1):size]
+  sw_col = A[1:(k-1),k]
+  A[k,k] = -1/akk
+  sw_col_n = sw_col/akk
+  sw_row_n = sw_row/akk
+  r_r = (1:size)[-k]
+  r_c = r_r
+  for(i in r_r){
+    for(j in r_c){
+      if(i>k){aik = sw_row_n[i-k]}else{aik = sw_col_n[i] }
+      if(j<k){akj = sw_col_n[j]}else{aik = sw_row_n[j-k]}
+      A[i,j] = A[i,j] - (aik*akj*akk)
+    }
+    r_c = r_c[!r_c %in% i]
+  }
+  A[k,(k+1):size] = sw_row_n
+  A[1:(k-1),k] = sw_col_n
+  d = diag(A)
+  return(A+t(A)-diag(d))
+}
+
+#' Inverse Sweep k
+#'
+#' \code{isweep_k} applies the inverse sweep operator to a symmetric matrix
+#' on the kth diagonal entry if it is possible.
+#'
+#' @param A The input symmetric matrix
+#' @param k Diagonal index on which to sweep
+#' @export
+isweep_k <- function(A, k) {
+
+}
+
+#' Sweep
+#'
+#' @param A The input symmetric matrix
+#' @param k Diagonal index entry set on which to sweep
+#' @export
+sweep <- function(A, k=NULL) {
+
+}
+
+#' Inverse Sweep
+#'
+#' @param A The input symmetric matrix
+#' @param k Diagonal index entry set on which to sweep
+#' @export
+isweep <- function(A, k=NULL) {
+
+}
+
+set.seed(12345)
+n <- 1000
+p <- 10
+X <- matrix(rnorm(n*p), n, p)
+beta <- matrix(rnorm(p), p, 1)
+y <- X%*%beta + matrix(rnorm(n), n, 1)

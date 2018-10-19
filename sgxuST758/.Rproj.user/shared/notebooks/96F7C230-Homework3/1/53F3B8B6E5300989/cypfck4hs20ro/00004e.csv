@@ -1,0 +1,5 @@
+"0","# time_vec = c(time_vec2,time_vec4,time_vec8)"
+"0","# k_vec = rep(c(2,4,8),each=length(x))"
+"0","# size_vec = rep(x,3)"
+"0","# nk2 = size_vec*(k_vec)^2"
+"0","# summary(fit <- lm(time_vec~nk2))"

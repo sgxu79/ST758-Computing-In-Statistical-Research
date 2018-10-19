@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1539186772206.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "CA4509DC",
+    "lastKnownWriteTime" : 1539923791,
+    "last_content_update" : 1539923791731,
+    "path" : "D:/NCSU Rcode/sgxuST758/R/cholesky_banded.R",
+    "project_path" : "R/cholesky_banded.R",
+    "properties" : {
+        "cursorPosition" : "39,17",
+        "scrollLine" : "0",
+        "tempName" : "Untitled2"
+    },
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

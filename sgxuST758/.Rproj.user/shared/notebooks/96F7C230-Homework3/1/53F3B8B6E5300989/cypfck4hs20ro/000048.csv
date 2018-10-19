@@ -1,0 +1,1 @@
+"0","plot(x,time_vec8[2,],xlab = ""matrix size"",ylab=""run time"",main=""banded linear system"",type=""l"",lwd=1.5,col=""steel blue"",ylim=c(0,0.002))"

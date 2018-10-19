@@ -1,0 +1,103 @@
+rm(list=ls())
+set.seed(12345)
+n <- 1e3
+A <- matrix(rnorm(n**2), n, n)
+A <- A + t(A)
+x = matrix(rnorm(n),nrow=n)
+eg = power_method_dense(A,x,1e6,1e-5)
+(t(eg)%*%A%*%eg)/(t(eg)%*%eg)
+eigen(A)$value[1]
+
+rm(list=ls())
+n <- 1e3
+D <- matrix(rnorm(n**2), n, n)
+D <- D + t(D)
+x = matrix(rnorm(n),nrow=n)
+eg = power_method_dense(D,x,1e4,1e-3)
+(t(eg)%*%D%*%eg)/(t(eg)%*%eg)
+eig = eigen(D)$values
+max = round(eig[which.max(abs(eig))],3)
+
+rm(list=ls())
+n <- 1e3
+B <- matrix(rnorm(n**2), n, n)
+B <- B + t(B)
+x = matrix(rnorm(n),nrow=n)
+eg = power_method_dense(B,x,1e4,1e-3)
+(t(eg)%*%B%*%eg)/(t(eg)%*%eg)
+eig = eigen(B)$values
+max = round(eig[which.max(abs(eig))],3)
+
+set.seed(12345)
+n <- 1e3
+k <- 10
+U1 <- matrix(rnorm(n*k), n, k)
+V1 <- U1
+x = matrix(rnorm(n),nrow=n)
+tic()
+eg = power_method_low_rank(U1,V1,x,1e5,1e-4)
+toc()
+A = U1%*%t(V1)
+(t(eg)%*%A%*%eg)/(t(eg)%*%eg)
+eigen(A)$value[1]
+
+U2 <- matrix(rnorm(n*k), n, k)
+V2 <- matrix(rnorm(n*k), n, k)
+U3 <- matrix(rnorm(n*k), n, k)
+V3 <- matrix(rnorm(n*k), n, k)
+
+library(Matrix)
+library(sgxuST758)
+set.seed(12345)
+n <- 1e7
+nnz <- 1e-5*n
+ix <- sample(1:n, size = nnz, replace = FALSE)
+S <- Matrix(0, nrow=n, ncol=n, sparse=TRUE)
+S[ix] <- rnorm(nnz)
+S <- S + t(S)
+u <- matrix(rnorm(n), ncol=1)
+x = matrix(rnorm(n),ncol=1)
+eg = power_method_sparse_plus_low_rank(S,u,u,x,1e4,1e-3)
+ans=(t(eg)%*%S%*%eg+(t(eg)%*%u)%*%(t(u)%*%eg))/(t(eg)%*%eg)
+
+
+
+int = function(x){
+  lmd/(1-exp(-lmd))*x*exp(-lmd*x)
+}
+
+for(lmd in seq(1,10,0.1)){
+  ans = integrate(int,0,1)$value-0.5
+  if(abs(ans)<1e-3) return(ans)
+}
+
+
+
+rm(list=ls())
+set.seed(12345)
+n <- 10
+nnz <- 6
+ix <- sample(1:n, size = nnz, replace = FALSE)
+A <- Matrix(0, nrow=n, ncol=n, sparse=TRUE)
+A[ix] <- rnorm(nnz)
+A <- A + t(A)
+eigen(as.matrix(A))
+x = matrix(rnorm(n),nrow=n)
+eg = power_method_sparse(A,x,1e2,1e-3)
+eg=as.matrix(eg)
+(t(eg)%*%A%*%eg)/(t(eg)%*%eg)
+
+x_last = x
+x_last
+matvec = A%*%x_last
+matvec
+norm(matvec,"2")
+x = (matvec)/norm(matvec,type="2")
+x
+change = norm(x-x_last,type="2")
+change
+eg=as.matrix(x)
+A = as.matrix(A)
+(t(eg)%*%A%*%eg)/(t(eg)%*%eg)
+eig = eigen(A)$values
+max = round(eig[which.max(abs(eig))],3)

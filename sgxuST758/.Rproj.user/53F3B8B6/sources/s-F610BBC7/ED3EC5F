@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1537983160426.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "ED3EC5F",
+    "lastKnownWriteTime" : 1538283988,
+    "last_content_update" : 1539231146828,
+    "path" : "D:/NCSU Rcode/sgxuST758/R/homework2.R",
+    "project_path" : "R/homework2.R",
+    "properties" : {
+        "cursorPosition" : "10,27",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

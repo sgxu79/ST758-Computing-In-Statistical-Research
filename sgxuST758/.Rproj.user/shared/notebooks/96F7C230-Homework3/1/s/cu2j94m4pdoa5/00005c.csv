@@ -1,0 +1,3 @@
+"0","# size_vec = rep(x,3)"
+"0","# nk2 = size_vec*(k_vec)^2"
+"0","# summary(fit <- lm(time_vec~I(size_vec^2)))"

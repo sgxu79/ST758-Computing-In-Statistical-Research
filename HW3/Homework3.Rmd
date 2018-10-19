@@ -1,0 +1,235 @@
+---
+title: "Homework 3"
+author: "Steven Xu"
+date: "Due @ 5pm on October 19, 2018"
+header-includes:
+  - \usepackage{bm}
+  - \newcommand{\Real}{\mathbb{R}}
+  - \newcommand{\dom}{{\bf dom}\,}
+  - \newcommand{\Tra}{^{\sf T}} % Transpose
+  - \newcommand{\Inv}{^{-1}} % Inverse
+  - \def\vec{\mathop{\rm vec}\nolimits}
+  - \def\sweep{\mathop{\rm sweep}\nolimits}
+  - \newcommand{\diag}{\mathop{\rm diag}\nolimits}
+  - \newcommand{\tr}{\operatorname{tr}} % Trace
+  - \newcommand{\epi}{\operatorname{epi}} % epigraph
+  - \newcommand{\V}[1]{{\bm{\mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\VE}[2]{\MakeLowercase{#1}_{#2}} % vector element
+  - \newcommand{\Vn}[2]{\V{#1}^{(#2)}} % n-th vector
+  - \newcommand{\Vtilde}[1]{{\bm{\tilde \mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\Vhat}[1]{{\bm{\hat \mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\VtildeE}[2]{\tilde{\MakeLowercase{#1}}_{#2}} % vector element
+  - \newcommand{\M}[1]{{\bm{\mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\ME}[2]{\MakeLowercase{#1}_{#2}} % matrix element
+  - \newcommand{\Mtilde}[1]{{\bm{\tilde \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mhat}[1]{{\bm{\hat \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mcheck}[1]{{\bm{\check \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mbar}[1]{{\bm{\bar \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mn}[2]{\M{#1}^{(#2)}} % n-th matrix
+output: pdf_document
+---
+
+**Part 1.** 
+
+1. Let $\M{A} \in \Real^{m \times m}$ be a $k$-banded matrix, namely $\ME{A}{ij} = 0$ if $\lvert i - j \rvert > k$.
+
+```{r setup}
+library(sgxuST758)
+library(Matrix)
+```
+
+```{r}
+set.seed(12345)
+k <- 3; m <- 10
+A <- matrix(rnorm(m**2), m, m)
+A <- A + t(A)
+A <- round(10*A)/10
+for (i in 1:m) {
+  for (j in 1:m) {
+    if (abs(i - j) > k) A[i,j] <- 0
+  }
+}
+A
+```
+
+The R snippet above constructs a `r k`-banded `r m`-by-`r m` matrix $\M{A}$. Suppose further that $\M{A}$ is positive definite and therefore admits a unique Cholesky decomposition $\M{A} = \M{R}\Tra\M{R}$ where $\M{R} \in \Real^{m \times m}$ is upper triangular.
+
+Prove that the banded Cholesky decomposition can be computed in $\mathcal{O}(mk^2)$ flops.
+
+**Answer:**
+
+For $\M{A} \in \Real^{m \times m}$, let $\M{A}^{(i)}$ be the starting matrix of Cholesky factorization at $i^{th}$ stage, $i=1,...,m$. Then $\M{A}^{(i)} = \M{A}[i:m,i:m]$. 
+
+$$
+\M{A}^{(i)}=\begin{pmatrix}
+\alpha^{(i)} & {a^{(i)}}^{\sf T}\\
+a^{(i)} & \M{A_*}^{(i)}
+\end{pmatrix}
+$$
+
+By the k-banded construction, only entries $[i,j]$ s.t. $max(i-k,1)\le j \le min(k+i,m)$ of $\M{A}$ have nonzero values. Therefore the first row of $\M{A}^{(i)}$ has nonzero values on columns $[i,max(k+i,m)]$. Therefore the first row of $\M{A}^{(i)}$ has at most $k+1$ nonzero entries, which is equivalent to ${a^{(i)}}^{\sf T}$ having at most $k$ nonzero elements, i.e. $nnz(a^{(i)})\le k$. The total flops of Cholesky factorization of a $m$ by $m$ $k-banded$ matrix at $i^{th}$ stage can be calculated as follow:
+
+$$
+\begin{aligned}
+&1. \ \rho = \sqrt{\alpha^{(i)}} \ \sim \mathcal{O}(1) \\
+&2. \ {r^{(i)}}^{\sf T} = \rho^{-1}{a^{(i)}}^{\sf T} \sim \mathcal{O}(nnz(a^{(i)}))\sim\mathcal{O}(k) \\
+&3. \M{A}^{sub} = \M{A}^{(i)}_*-r^{(i)}{r^{(i)}}^{\sf T} \sim \mathcal{O}(k^2) \\
+\end{aligned}
+$$
+
+Step 3 is of $\mathcal{O}(k^2)$ because ${r^{(i)}}^{\sf T}$ has at most $k^2$ nonzero entries. Since we have to repeat the above steps $m$ times. The total flops is of $\mathcal{O}(mk^2)$.
+
+2. Prove that solving a linear system with the Cholesky factor matrix $\M{R}$ of a $k$-banded matrix $\M{A}$ is $\mathcal{O}(mk)$ flops.
+
+**Answer:**
+
+Suppose we have
+
+$$
+\begin{aligned}
+&{\M{R}}\Tra\M{R}b = y, \ \text{let } \M{R}b=u \\
+& 1. \ {\M{R}}\Tra u=y \\
+& 2. \ \M{R}b = u
+\end{aligned}
+$$
+
+From question 1 we know that $\M{R}$ will have at most $k$ nonzero elements on each row. Therefore when solving ${\M{R}}\Tra u=y$, each step of back substitution require at most $2k-1$ flops and we have m steps. Therefore ${\M{R}}\Tra u=y \ \sim \mathcal{O}(mk)$. Similarly $\M{R}b = u \ \sim \mathcal{O}(mk)$. Thus solving a linear system with $\M{R}$ is of $\mathcal{O}(mk)$.
+
+\newpage
+
+**Part 2.** Banded Cholesky Decomposition
+
+You will next add an implementation of the banded Cholesky decomposition to your R package.
+
+Please complete the following steps.
+
+**Step 0:** Make a file called `cholesky_banded.R` in your R package. Put it in the R subdirectory, namely we should be able to see the file at github.ncsu.edu/unityidST758/unityidST758/R/cholesky_banded.R
+
+**Step 1:** Write a function `check_k_banded` that returns `True` if an input matrix `A` is $k$-banded and `False` otherwise. It should return an error message if $k < 0$ or if $k$ is not an integer. Please use the `stop` function. You may also find the function `is.integer` helpful.
+
+```{r, echo=TRUE}
+#' Check Matrix is k-banded
+#' 
+#' \code{check_k_banded} returns a Boolean variable indicating whether or
+#' not a matrix is k-banded.
+#' 
+#' @param A The input matrix
+#' @param k bandwidth parameter
+#' @export
+# check_k_banded <- function(A, k) {
+#   
+# }
+```
+
+**Step 2:** Write a recursive function `chol_banded` that computes the $k$-banded Cholesky decomposition. **Note:** It is also okay if you don't write a recursive version. In fact, a non-recursive version will probably be better as R has a limit on the number of times a recursive function can be called within itself. But it's fine if you write a recursive version as originally requested too.
+
+```{r, echo=TRUE}
+#' Banded Cholesky
+#' 
+#' \code{chol_banded} computes the Cholesky decomposition of a banded 
+#' positive definite matrix.
+#' 
+#' @param A The input matrix
+#' @param k bandwidth parameter
+#' @param checks_off Boolean variable to turn on / off checks
+#' @export
+# chol_banded <- function(A, k, checks_off=FALSE) {
+#   
+# }
+```
+
+
+- Use sparse matrices via `Matrix` package. Be sure to put the line
+```
+Depends: Matrix
+```
+in your `DESCRIPTION` file.
+- Your function should return an error message if the input matrix is not $k$-banded (**Hint:** Use your `check_k_banded` function you wrote in Step 1).
+- Your function should return an error message if the input matrix is not symmetric
+- Your function should return a sparse uppertriangular matrix `R`.
+
+**Step 3:** Write a unit test function `test-cholesky` that
+
+- checks the error messages for `check_k_banded`
+- checks the correctness of your `check_k_banded` function
+- checks the error messages for `chol_banded`
+- checks the correctness of your `chol_banded` output matrix with that obtained by R's `chol` function.
+
+**Step 4:** Apply your `chol_banded` function on $k$-banded positive definite matrices of several sizes $n$ and $k$, and plot the run times using `system.out`. Plot runtime versus $n$ and overlay the curves for $k = 2, 4, 8$. Does the run time scale as you'd expect?
+
+```{r, echo=TRUE,cache=TRUE}
+x = c(200,400,800)
+time = function(k,size){
+  y = matrix(rnorm(size),ncol=1)
+  A <- matrix(rgamma(size,5,5)+1, ncol=1)
+  A <- tcrossprod(A)
+  A[lower.tri(A)] <- 0
+  for (i in 1:size) {
+    for (j in 1:size) {
+      if (abs(i - j) > k) A[i,j] <- 0
+    }
+  }
+  A <- round(10*A)/10
+  A = t(A)%*%A
+  t1 = as.numeric(system.time(R<-chol_banded(A,k,TRUE))[3])
+  return(t1)
+}
+time_vec2 = sapply(x,k=2,time)
+time_vec4 = sapply(x,k=4,time)
+time_vec8 = sapply(x,k=8,time)
+plot(x,time_vec8,xlab = "matrix size",ylab="run time",main="banded cholesky",type="l",lwd=1.5,col="steel blue",ylim=c(0,max(time_vec8)))
+lines(x,time_vec2,lwd=1.5,col=2)
+lines(x,time_vec4,lwd=1.5,col=4)
+size_vec = rep(x,3)
+k_vec = rep(c(2,4,8),each=length(x))
+nk2 = size_vec*(k_vec)^2
+time_vec = c(time_vec2,time_vec4,time_vec8)
+summary(fit <- lm(time_vec~nk2))
+```
+
+We can see that the linear regression fit of runtime$\sim mk^2$ has a R-squared of close to 1, proving that the banded cholesky has a computation complexity of $\mathcal{O}(nk^2)$.
+
+**Step 5:** Generate random right hand side vectors $\V{y}$ of several sizes $n$. Using the Cholesky factor matrices $R$ obtained for $k$-banded positive definite matrices of sizes $n$ and $k = 2, 4, 8$, plot the run times solving the linear system $\M{R}\Tra\V{u} = \V{y}$ plus the run time of solving the linear system $\M{R}\V{x} = \V{u}$ as a function of $n$ for $k = 2, 4, 8$. Use the function `Matrix::solve` with the parameter `system` = `"L"` and `"Lt"` respectively. Does the run time scale as you'd expect?
+
+```{r,echo=TRUE,cache=TRUE}
+rm(list=ls())
+x = c(2000,4000,8000,16000)
+time = function(k,size){
+   y = matrix(rnorm(size),ncol=1)
+   A <- matrix(rgamma(size,5,5)+1, ncol=1)
+   A <- tcrossprod(A)
+   A[lower.tri(A)] <- 0
+   for (i in 1:size) {
+     for (j in 1:size) {
+       if (abs(i - j) > k) A[i,j] <- 0
+     }
+   }
+   A <- round(10*A)/10
+   A = Matrix(A,sparse=TRUE)
+   t_start = Sys.time()
+   for(i in 1:1000) {
+      u = solve(t(A),y)
+      s = solve(A,u)
+   }
+   t_end = Sys.time()
+   t2 = as.numeric(t_end-t_start)/1000
+   return(t2)
+}
+time_vec2 = sapply(x,k=2,time)
+time_vec4 = sapply(x,k=4,time)
+time_vec8 = sapply(x,k=8,time)
+time_vec = c(time_vec2,time_vec4,time_vec8)
+k_vec = rep(c(2,4,8),each=length(x))
+plot(x,time_vec8,xlab = "matrix size",ylab="run time",main="banded linear system",type="l",lwd=1.5,col=8,ylim=c(0,max(time_vec)))
+lines(x,time_vec2,lwd=1.5,col=2)
+lines(x,time_vec4,lwd=1.5,col=4)
+legend("topleft",legend=c(2,4,8),lty=1,col=c(2,4,8))
+plot(c(2,4,8),time_vec[c(1,5,9)],type="l",ylim=c(0,max(time_vec)),xlab="band width",ylab="run time")
+lines(c(2,4,8),time_vec[c(2,6,10)],col=2)
+lines(c(2,4,8),time_vec[c(3,7,11)],col=3)
+lines(c(2,4,8),time_vec[c(4,8,12)],col=4)
+legend("topleft",legend=c("2e3","4e3","8e3","1.6e5"),lty=1,col=c(1,2,3,4))
+
+```
+
+We can see that the run time doesnot seem to be perfectly linear in neither matrix size and band width which contradicts with our mathematical result. This might be bcause that the matrix size is still not big enough to make th algorithm to perform stable enough. Or, the built-in solve function might have run time not specifically designed for k banded matrices.
