@@ -195,6 +195,7 @@ Because the solve method does not performs very stably for small matrices size, 
 
 ```{r,echo=TRUE,cache=TRUE}
 rm(list=ls())
+set.seed(1234)
 x = c(2000,4000,8000,16000)
 time = function(k,size){
    y = matrix(rnorm(size),ncol=1)

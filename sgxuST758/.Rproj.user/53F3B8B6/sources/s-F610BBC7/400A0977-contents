@@ -37,6 +37,18 @@ test_that("chol_banded throws error when A is not k-banded",{
   expect_error(chol_banded(A,k-1),"Matrix is not k banded")
 })
 
+test_that("chol_banded throws error when A is not positive definite",{
+  m = 5
+  k = 2
+  A = matrix(rep(-2,25),nrow=5)
+  for (i in 1:m) {
+    for (j in 1:m) {
+      if (abs(i - j) > k) A[i,j] <- 0
+    }
+  }
+  expect_error(chol_banded(A,2),"Matrix not positive definite")
+})
+
 test_that("chol_banded correctly factorizes k-banded matrix",{
   m <- sample(1:50,1)
   k <- sample(1:round(m/2),1)
