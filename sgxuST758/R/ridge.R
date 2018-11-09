@@ -41,6 +41,10 @@ ridge_regression <- function(y, X, lambda) {
 #' @import Matrix
 #' @export
 leave_one_out <- function(y,X,lambda) {
+  y = matrix(y,ncol=1)
+  if(is.null(dim(X))){
+    X = as.matrix(X)
+  }
   b_mat = ridge_regression(y,X,lambda)
   p = dim(X)[2]
   I = diag(p)
@@ -55,6 +59,5 @@ leave_one_out <- function(y,X,lambda) {
   }
   return(LOO)
 }
-
 
 

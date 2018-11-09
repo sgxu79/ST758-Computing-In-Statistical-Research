@@ -1,0 +1,149 @@
+---
+title: "Homework 4"
+author: "Your Name"
+date: "Due @ 5pm on November 9, 2018"
+header-includes:
+  - \usepackage{bm}
+  - \newcommand{\Real}{\mathbb{R}}
+  - \newcommand{\dom}{{\bf dom}\,}
+  - \newcommand{\Tra}{^{\sf T}} % Transpose
+  - \newcommand{\Inv}{^{-1}} % Inverse
+  - \def\vec{\mathop{\rm vec}\nolimits}
+  - \def\sweep{\mathop{\rm sweep}\nolimits}
+  - \newcommand{\diag}{\mathop{\rm diag}\nolimits}
+  - \newcommand{\tr}{\operatorname{tr}} % Trace
+  - \newcommand{\epi}{\operatorname{epi}} % epigraph
+  - \newcommand{\V}[1]{{\bm{\mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\VE}[2]{\MakeLowercase{#1}_{#2}} % vector element
+  - \newcommand{\Vn}[2]{\V{#1}^{(#2)}} % n-th vector
+  - \newcommand{\Vtilde}[1]{{\bm{\tilde \mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\Vhat}[1]{{\bm{\hat \mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\VtildeE}[2]{\tilde{\MakeLowercase{#1}}_{#2}} % vector element
+  - \newcommand{\M}[1]{{\bm{\mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\ME}[2]{\MakeLowercase{#1}_{#2}} % matrix element
+  - \newcommand{\Mtilde}[1]{{\bm{\tilde \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mhat}[1]{{\bm{\hat \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mcheck}[1]{{\bm{\check \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mbar}[1]{{\bm{\bar \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mn}[2]{\M{#1}^{(#2)}} % n-th matrix
+output: pdf_document
+---
+
+**Part 1.** Let $\V{y} = \M{X}\V{\beta} + \V{w}$, where $\V{y} \in \Real^n, \M{X} \in \Real^{n \times p}$, $\V{\beta} \in \Real^p$, and $\VE{w}{i}$ are i.i.d. random vectors with zero mean and variance $\sigma^2$. Recall that the ridge regression estimate is given by
+
+$$
+\Vhat{\beta}_\lambda = \underset{\V{\beta}}{\arg\min}\; \frac{1}{2}\lVert \V{y} - \M{X}\V{\beta} \rVert_2^2 + \frac{\lambda}{2} \lVert \V{\beta} \rVert_2^2.
+$$
+
+1. Show that the variance of $\Vhat{\beta}_\lambda$ is given by
+
+$$
+\sigma^2 \M{W}\M{X}\Tra\M{X}\M{W},
+$$
+where $\M{W} = (\M{X}\Tra\M{X} + \lambda\M{I})\Inv$. To get full credit, you need to argue why $\M{X}\Tra\M{X} + \lambda\M{I}$ is invertible.
+
+**Answer:**
+
+Write your answer here.
+
+2. Show that the bias of $\Vhat{\beta}_\lambda$ is given by
+
+$$
+- \lambda\M{W}\V{\beta}
+$$
+
+**Answer:**
+
+Write your answer here.
+
+3. A natural question is how to choose the tuning parameter $\lambda$. There are several classes of solutions. See for example, Efron's work "The Estimation of Prediction Error."
+
+The degrees of freedom of a linear estimator $\Vhat{y} = \M{S}\V{y}$ is given by $\tr(\M{S})$. Ridge regression provides a linear estimator of the observed response $\V{y}$ where $\M{S} = \M{X}(\M{X}\Tra\M{X} + \lambda\M{I})\Inv\M{X}\Tra$. Show that the degrees of freedom of the ridge estimator is given by
+
+$$
+\sum_i \frac{\sigma_i^2}{\sigma_i^2 + \lambda},
+$$
+where $\sigma_i$ is the $i$th singular value of $\M{X}$.
+
+**Answer:**
+
+Write your answer here.
+
+\newpage
+
+**Part 2.** Ridge Regression.
+
+You will next add an implementation of the ridge regression to your R package.
+
+Please complete the following steps.
+
+**Step 0:** Make a file called `ridge.R` in your R package. Put it in the R subdirectory, namely we should be able to see the file at github.ncsu.edu/unityidST758/unityidST758/R/ridge.R
+
+**Step 1:** Write a function `ridge_regression` that computes the ridge regression coefficient estimates for a sequence of regularization parameter values $\lambda$.
+
+It should return an error message
+
+- if the response variable $\V{y} \in \Real^n$ and the design matrix $\M{X} \in \Real^{n \times p}$ are not conformable
+- if the tuning parameters are negative
+
+Please use the `stop` function. 
+
+```{r, echo=TRUE}
+#' Ridge Regression
+#' 
+#' \code{ridge_regression} returns the ridge regression coefficient estimates
+#' for a sequence of regularization parameter values.
+#' 
+#' @param y response variables
+#' @param X design matrix
+#' @param lambda vector of tuning parameters
+#' @export
+ridge_regression <- function(y, X, lambda) {
+}
+```
+
+- Your function should return a matrix of regression coefficients $\M{B} \in \Real^{p \times n_\lambda}$ whose columns are regression coefficient vectors for each value of $\lambda$ in the vector `lambda` and $n_\lambda$ is `length(lambda)`.
+
+**Step 2:** Write a unit test function `test-ridge` that
+
+- checks the error messages for your `ridge_regression` function
+- checks the correctness of the estimated regression coefficients produced by `ridge_regression` function. Given data $(\V{y},\M{X})$, recall that $\V{b}$ is the ridge estimate with regularization parameter $\lambda$ if and only if
+
+$$
+(\M{X}\Tra\M{X} + \lambda\M{I})\V{b} = \M{X}\Tra\V{b}.
+$$
+
+**Step 3:** Construct three poorly conditioned multiple linear regression problems, with design matrices with condition numbers of 100, 1000, and 10000. Write in this Markdown file, using nice notation the problem set up.
+
+**Step 4:** Solve the three regression problems you constructed in Step 3. You may use the base `solve` function for this.
+
+**Step 5:** Solve a perturbed linear regression problem, i.e. add noise to the design matrix and response variable. Solve the perturbed systems and report the relative error between the solutions to the perturbed systems and the solutin you obtained in Step 4. How does this relative error compare to the worst case bounds derived in class?
+
+**Step 6:** Write a function `leave_one_out` that computes the following leave-one-out (LOO) prediction error estimate:
+
+$$
+\text{LOO}(\lambda) = \frac{1}{n} \sum_{k=1}^n (\VE{y}{k} - \hat{y}_k^{-k}(\lambda))^2,
+$$
+where
+
+$$
+\VE{y}{k} - \hat{y}_k^{-k}(\lambda) = \frac{\VE{y}{k} - \hat{y}_k(\lambda)}{1 - \VE{h}{k}(\lambda)},
+$$
+and $\ME{h}{k}(\lambda)$ is the $k$th diagonal entry of the matrix $\M{X}(\M{X}\Tra\M{X} + \lambda \M{I})\Inv\M{X}\Tra$.
+
+```{r, echo=TRUE}
+#' Leave One Out
+#' 
+#' \code{leave_one_out} returns the leave-one-out 
+#' for a sequence of regularization parameter values.
+#' 
+#' @param y response variables
+#' @param X design matrix
+#' @param lambda vector of tuning parameters
+#' @export
+leave_one_out <- function(y, X, lambda) {
+}
+```
+
+
+**Step 7:** Solve ridge penalized versions of the perturbed multiple linear regression problems for several values of the tuning parameter $\lambda$. Please highlight the one that minimizes the LOO prediction error (plot a vertical line at $\lambda_{\text{LOO}}$). Plot the relative error for the three problems as a function of $\lambda$. You may make three plots - one for each problem.

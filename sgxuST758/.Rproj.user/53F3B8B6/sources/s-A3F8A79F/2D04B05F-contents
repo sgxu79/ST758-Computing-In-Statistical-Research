@@ -41,6 +41,10 @@ ridge_regression <- function(y, X, lambda) {
 #' @import Matrix
 #' @export
 leave_one_out <- function(y,X,lambda) {
+  y = matrix(y,ncol=1)
+  if(is.null(dim(X))){
+    X = as.matrix(X)
+  }
   b_mat = ridge_regression(y,X,lambda)
   p = dim(X)[2]
   I = diag(p)
@@ -57,11 +61,3 @@ leave_one_out <- function(y,X,lambda) {
 }
 
 
-y_test = c(1,2,1)
-X_test = matrix(c(1,0,0,0,1e-6,1e-8),ncol=2)
-lambda_test<-10^seq(-15,-14,length.out = 40)
-rel<-leave_one_out(y_pert,X_pert_1e3,lambda)
-plot(rel~log10(lambda),type="l")
-
-
-lambda<-10^seq(-10,-1,length.out = 100)

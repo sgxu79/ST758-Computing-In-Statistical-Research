@@ -150,7 +150,7 @@ Please use the `stop` function.
 # }
 ```
 
-**Step 3:** Write a unit test function `test-ridge` that
+**Step 2:** Write a unit test function `test-ridge` that
 
 - checks the error messages for your `ridge_regression` function
 - checks the correctness of the estimated regression coefficients produced by `ridge_regression` function. Given data $(\V{y},\M{X})$, recall that $\V{b}$ is the ridge estimate with regularization parameter $\lambda$ if and only if
@@ -159,7 +159,7 @@ $$
 (\M{X}\Tra\M{X} + \lambda\M{I})\V{b} = \M{X}\Tra\V{y}.
 $$
 
-**Step 4:** Construct three poorly conditioned multiple linear regression problems, with design matrices with condition numbers of 100, 1000, and 10000. Write in this Markdown file, using nice notation the problem set up.
+**Step 3:** Construct three poorly conditioned multiple linear regression problems, with design matrices with condition numbers of 100, 1000, and 10000. Write in this Markdown file, using nice notation the problem set up.
 
 For an arbitrary full column rank design matrix $\M{X} \in \Real^{n \times p}$, let $\M{U}\M{\Sigma}\M{V}\Tra$ be the singular value decomposition of $\M{X}$. Now since the definition of condition number is $\kappa(\M{X})=\frac{\sigma_{max}(X)}{\sigma_{min}(X)}$, where $\sigma_{max}(X)$, $\sigma_{min}(X)$ are the largest and smallest non-zero sigular value respectively. Then we can modify $\M{\Sigma}$ such that $\frac{\sigma_{max}^*(X)}{\sigma_{min}^*(X)}=K$, where $\sigma_{max}^*(X)$ and $\sigma_{min}^*(X)$ are modified singular values and $K$ our desired condition number. Then the reconstructed $\M{X}$ would be a ill-conditioned design matrix. 
 
@@ -208,7 +208,7 @@ $$
 $$
 
 
-**Step 5:** Solve the three regression problems you constructed in Step 4.
+**Step 4:** Solve the three regression problems you constructed in Step 4.
 
 ```{r}
 set.seed(1234)
@@ -234,7 +234,7 @@ b_hat[,3] = solve(t(X_1e4)%*%X_1e4,t(X_1e4)%*%y)
 
 
 
-**Step 6:** Solve a perturbed linear regression problem, i.e. add noise to the design matrix and response variable. Solve the perturbed systems and report the relative error between the solutions to the perturbed systems and the solutin you obtained in Step 5. How does this relative error compare to the worst case bounds derived in class?
+**Step 5:** Solve a perturbed linear regression problem, i.e. add noise to the design matrix and response variable. Solve the perturbed systems and report the relative error between the solutions to the perturbed systems and the solutin you obtained in Step 5. How does this relative error compare to the worst case bounds derived in class?
 
 $$
 \Delta \M{X} = \begin{pmatrix}
@@ -246,7 +246,7 @@ $$
 \ \Delta \M{y}\sim N_3(\V{0},10^{-6}\times\M{I})
 $$
 
-Since $\kappa(X)=10^2,10^3,10^4$, I chose $\epsilon=5\times10^{-5}$ so that $\epsilon\kappa(X)=\frac{1}{2}$. Then if all the conditions are met, we should have the inequality $\frac{||\tilde{\beta}-\hat{\beta}||_2}{||\hat{\beta}||_2}\le4\epsilon\kappa(X)$
+Since $\kappa(X)=10^2,10^3,10^4$, I chose $\epsilon=5\times10^{-6}$ so that $\epsilon\kappa(X)<\frac{1}{2}$. Then if all the conditions are met, we should have the inequality $\frac{||\tilde{\beta}-\hat{\beta}||_2}{||\hat{\beta}||_2}\le4\epsilon\kappa(X)$. The perturbation was chosen so that X will become even closer to singular matrix.
 
 ```{r}
 X_noise = matrix(c(0,0,2e-6,0,0,-2e-6),ncol=2)
@@ -269,10 +269,10 @@ cat("relative error")
 re_err1
 ```
 
-The maximum perturbation for the three ill-conditioned matrices are $4.9\times10^{-5},4.9\times10^{-6},1.16\times10^{-6}$ which are all less than $5\times10^{-5}$. Therefore the conditions are met. Relative erros are all about 0.004, comparing to the worst bounds $0.02,0.2,2$. We see that for Matrix with smaller condition number the bound is tighter.
+The maximum perturbation for the three ill-conditioned matrices are $4.9\times10^{-5},4.9\times10^{-6},6.72\times10^{-7}$ which are all less than $5\times10^{-5}$. Therefore the conditions are met. Relative erros are all about 0.004, comparing to the worst bounds $0.02,0.2,2$. We see that for Matrix with smaller condition number the bound is tighter.
 
 
-**Step 7:** Write a function `leave_one_out` that computes the following leave-one-out (LOO) prediction error estimate:
+**Step 6:** Write a function `leave_one_out` that computes the following leave-one-out (LOO) prediction error estimate:
 
 $$
 \text{LOO}(\lambda) = \frac{1}{n} \sum_{k=1}^n (\VE{y}{k} - \hat{y}_k^{-k}(\lambda))^2,
@@ -300,7 +300,7 @@ and $\ME{h}{k}(\lambda)$ is the $k$th diagonal entry of the matrix $\M{X}(\M{X}\
 
 
 
-**Step 8:** Solve ridge penalized versions of the perturbed multiple linear regression problems for several values of the tuning parameter $\lambda$. Please highlight the one that minimizes the LOO prediction error. Plot the relative error for the three problems as a function of $\lambda$.
+**Step 7:** Solve ridge penalized versions of the perturbed multiple linear regression problems for several values of the tuning parameter $\lambda$. Please highlight the one that minimizes the LOO prediction error. Plot the relative error for the three problems as a function of $\lambda$.
 
 ```{r}
 library(sgxuST758)
