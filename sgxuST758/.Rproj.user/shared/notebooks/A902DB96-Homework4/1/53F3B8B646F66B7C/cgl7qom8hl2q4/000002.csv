@@ -1,0 +1,17 @@
+"0","n <- 10
+u <- matrix(rnorm(n), ncol=1)
+A <- tcrossprod(u)
+diag(A) <- diag(A) + 2
+s = svd(A)
+d = s$d
+u = s$u
+v = s$v
+d[1]<-100
+d[n]<-1
+A = u%*%diag(d)%*%t(v)
+is.singular.matrix(A)
+"
+"1","[1]"
+"1"," FALSE"
+"1","
+"

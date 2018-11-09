@@ -1,0 +1,7 @@
+"0","b_lam = ridge_regression(y_pert,X_pert_1e4,lambda1)"
+"0","lambda<-10^seq(-10,2,length.out = 100)"
+"0","for(i in 1:length(lambda1)){"
+"0","  re_err[i] = norm(matrix((b_lam[,i]-b_hat[,1]),ncol=1),'2')/norm(matrix(b_hat[,1],ncol=1),'2')"
+"0","}"
+"0","loo_vec<-leave_one_out(y_pert,X_pert_1e4,lambda)"
+"0","plot(lambda,loo_vec,type=""l"",xlab=expression(lambda),ylab=""LOO"",main=expression(kappa(X)==10000))"

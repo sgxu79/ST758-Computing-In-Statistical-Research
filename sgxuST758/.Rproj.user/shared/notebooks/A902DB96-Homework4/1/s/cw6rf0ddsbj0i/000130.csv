@@ -1,0 +1,2 @@
+"0","l_min = which(loo_vec == min(loo_vec))"
+"0","abline(v=lambda[l_min],col=2)"

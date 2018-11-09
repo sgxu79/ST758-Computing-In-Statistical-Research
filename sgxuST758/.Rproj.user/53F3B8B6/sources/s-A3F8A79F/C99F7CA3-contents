@@ -1,0 +1,15 @@
+Package: sgxuST758
+Type: Package
+Title: Numerical analysis methods
+Version: 0.1.1
+Author: Steven Xu <sgxu@ncsu.edu>
+Maintainer: Steven Xu <sgxu@ncsu.edu>
+Description: sgxuST758 is a collection of functions that implement well-known numerical analysis 
+             methods such as power method, sweep operator and cholesky factorization.
+Dependencies: R (>= 3.4.2)
+License: NCSU
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.0
+Suggests: testthat
+Imports: methods, Matrix, matrixcalc

@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1540921397237.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "2D04B05F",
+    "lastKnownWriteTime" : 1541745019,
+    "last_content_update" : 1541772601160,
+    "path" : "D:/NCSU Rcode/sgxuST758/R/ridge.R",
+    "project_path" : "R/ridge.R",
+    "properties" : {
+        "cursorPosition" : "66,0",
+        "scrollLine" : "34",
+        "tempName" : "Untitled2"
+    },
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

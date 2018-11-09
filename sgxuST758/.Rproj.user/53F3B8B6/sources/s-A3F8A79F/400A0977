@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1539233446960.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "400A0977",
+    "lastKnownWriteTime" : 1539984098,
+    "last_content_update" : 1539984098868,
+    "path" : "D:/NCSU Rcode/sgxuST758/tests/testthat/test-cholesky.R",
+    "project_path" : "tests/testthat/test-cholesky.R",
+    "properties" : {
+        "cursorPosition" : "13,2",
+        "scrollLine" : "0",
+        "tempName" : "Untitled2"
+    },
+    "relative_order" : 12,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
