@@ -1,0 +1,10 @@
+1. Theorem Part -------- good 20/20
+
+
+2. Codes Part --------- 39/40
+
+* R package Build ok
+* R package Test,ok
+
+* For step 4, great plot.
+*  For step 5,  the general trend is okay.Your comments are correct,some crossing and decreasing at the beginning is not good. -1
