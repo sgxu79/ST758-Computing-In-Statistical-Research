@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1544153078772.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "E4FFCD8",
+    "lastKnownWriteTime" : 1540220813,
+    "last_content_update" : 1540220813,
+    "path" : "D:/NCSU Rcode/ST740 HW5.Rmd",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "10,46",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 16,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

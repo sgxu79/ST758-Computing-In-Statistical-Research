@@ -1,0 +1,166 @@
+#-------------------------------step 1----------------------------------
+#' Gradient Step
+#'
+#' @param gradf handle to function that returns gradient of objective function 
+#' @param x current parameter estimate
+#' @param t step-size
+#' @export
+gradient_step <- function(gradf, t, x) {
+  x_star = x - t*gradf
+  return(x_star)
+}
+
+#-------------------------------step 2----------------------------------
+#' Gradient Descent (Fixed Step-Size)
+#'
+#' @param fx handle to function that returns objective function values
+#' @param gradf handle to function that returns gradient of objective function 
+#' @param x0 initial parameter estimate
+#' @param t step-size
+#' @param max_iter maximum number of iterations
+#' @param tol convergence tolerance
+#' @export
+gradient_descent_fixed <- function(fx, gradf, t, x0, max_iter=1e2, tol=1e-3) {
+  beta_old = x0
+  gradf_new = gradf(x0)
+  f_new = fx(x0)
+  count = 0
+  f_cha = 1
+  result = list("iter_val"=c(),"fun_val"=c(),"norm_g"=c(),"rel_fun"=c(),"rel_iter"=c())
+  while(count < max_iter & f_cha > tol){
+    beta_new = gradient_step(gradf_new, t, beta_old)
+    f_old = f_new
+    f_new =  fx(beta_new)
+    gradf_new = gradf(beta_new)
+    g_norm = norm(gradf_new,type='2')
+    f_cha = abs(f_new-f_old)
+    f_rel_cha = abs(f_cha/f_old)
+    b_rel_cha = norm((beta_new-beta_old),type="2")/norm(beta_old,type="2")
+    result[["iter_val"]] = c(result[["iter_val"]],beta_new)
+    result[["fun_val"]] = c(result[["fun_val"]],f_new)
+    result[["norm_g"]] = c(result[["norm_g"]],g_norm)
+    result[["rel_fun"]] = c(result[["rel_fun"]],f_rel_cha)
+    result[["rel_iter"]] = c(result[["rel_iter"]],b_rel_cha)
+    count = count + 1
+    beta_old = beta_new
+    }
+  return(result)
+}
+
+
+#-------------------------------step 3----------------------------------
+#' Objective Function for Logistic Regression
+#'
+#' @param y binary response
+#' @param X design matrix
+#' @param beta regression coefficient vector
+#' @param lambda regularization parameter
+#' @export
+fx_logistic <- function(y, X, beta, lambda=0) {
+  fx = sum(log(1 + exp(X%*%beta))) - sum(y*(X%*%beta)) + (lambda/2)*sum(beta*beta)
+  return(fx)
+}
+
+
+#' Gradient for Logistic Regession
+#'
+#' @param y binary response
+#' @param X design matrix
+#' @param beta regression coefficient vector
+#' @param lambda regularization parameter
+#' @export
+gradf_logistic <- function(y, X, beta, lambda=0) {
+  gradf = 0
+  for(i in 1:length(y)){
+    gradf = exp(sum(X[i,]*beta))*X[i,]/(1+exp(sum(X[i,]*beta))) -y[i]*X[i,] + gradf
+  }
+  gradf = gradf + lambda*beta
+  return(gradf)
+}
+
+#-------------------------------step 6----------------------------------
+#' Compute Newton Step (Naive) for logistic ridge regression
+#'
+#' @param X Design matrix
+#' @param y Binary response vector
+#' @param beta Current regression vector estimate
+#' @param g Gradient vector
+#' @param lambda Regularization parameter 
+newton_step_naive <- function(X, y, beta, g, lambda) {
+  p = ncol(X)
+  W = diag(as.vector(plogis(X%*%beta)))
+  A = lambda*diag(p) + t(X)%*%W%*%X
+  R = chol(A)
+  u = forwardsolve(t(R), g)
+  Newton_step = backsolve(R, u)
+  return(Newton_step)
+}
+
+#-------------------------------step 7----------------------------------
+#' Compute Newton Step (Sherman-Morrison-Woodbury) for logistic ridge regression
+#'
+#' @param X Design matrix
+#' @param y Binary response vector
+#' @param beta Current regression vector estimate
+#' @param g Gradient vector
+#' @param lambda Regularization parameter 
+newton_step_smw <- function(X, y, beta, g, lambda) {
+  p = ncol(X)
+  W_inv = diag(as.vector(1/plogis(X%*%beta)))
+  cma = chol(W_inv + X%*%t(X)/lambda)
+  cma_inv = chol2inv(cma)
+  Hessian_inv = diag(p)/lambda - t(X)%*%cma_inv%*%X/lambda^2
+  Newton_step = Hessian_inv%*%g
+  return(Newton_step)
+}
+
+#-------------------------------step 8----------------------------------
+#' Backtracking for steepest descent
+#'
+#' @param fx handle to function that returns objective function values
+#' @param x current parameter estimate
+#' @param t current step-size
+#' @param df the value of the gradient of objective function evaluated at the current x 
+#' @param d descent direction vector
+#' @param alpha the backtracking parameter
+#' @param beta the decrementing multiplier
+backtrack_descent <- function(fx, x, t, df, d, alpha=0.5, beta=0.9) {
+  ss = t
+  f_new = fx(x)
+  while(f_new > (fx(x)-alpha*ss*t(df)%*%d)){
+    ss = beta*ss
+    f_new = fx(x-ss*d)
+    }
+  return(ss)
+}
+
+#-------------------------------step 9----------------------------------
+#' Damped Newton's Method for Fitting Ridge Logistic Regression
+#'
+#' @param y Binary response
+#' @param X Design matrix
+#' @param beta Initial regression coefficient vector
+#' @param lambda regularization parameter
+#' @param naive Boolean variable; TRUE if using Cholesky on the Hessian
+#' @param max_iter maximum number of iterations
+#' @param tol convergence tolerance
+
+logistic_ridge_newton <- function(X, y, beta, lambda=0, naive=TRUE, max_iter=1e2, tol=1e-3) {
+  t = 1
+  beta_new = beta
+  count = 0
+  HSND = 1
+  while((count<max_iter) & (HSND>tol)){
+    beta_old = beta_new
+    gradf = gradf_logistic(y, X, beta_old,lambda)
+    
+    if(naive == 0) Newton_step = newton_step_smw(X, y, beta_old, gradf, lambda)
+    else Newton_step = newton_step_naive(X, y, beta_old, gradf, lambda)
+    
+    HSND = t(gradf)%*%Newton_step/2
+    step_size = backtrack_descent(fx_logistic_wrapper, beta_old, t, gradf, Newton_step, alpha=0.5, 0.9)
+    beta_new = beta_old - step_size*Newton_step
+    count = count + 1
+    }
+  return(beta_new)
+  }

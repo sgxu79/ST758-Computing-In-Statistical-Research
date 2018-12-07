@@ -1,0 +1,466 @@
+---
+title: "Homework 5"
+author: "YU"
+date: "Due @ 5pm on December 7, 2018"
+header-includes:
+  - \usepackage{bm}
+  - \newcommand{\Real}{\mathbb{R}}
+  - \newcommand{\dom}{{\bf dom}\,}
+  - \newcommand{\Tra}{^{\sf T}} % Transpose
+  - \newcommand{\Inv}{^{-1}} % Inverse
+  - \def\vec{\mathop{\rm vec}\nolimits}
+  - \newcommand{\diag}{\mathop{\rm diag}\nolimits}
+  - \newcommand{\tr}{\operatorname{tr}} % Trace
+  - \newcommand{\epi}{\operatorname{epi}} % epigraph
+  - \newcommand{\V}[1]{{\bm{\mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\VE}[2]{\MakeLowercase{#1}_{#2}} % vector element
+  - \newcommand{\Vn}[2]{\V{#1}^{(#2)}} % n-th vector
+  - \newcommand{\Vtilde}[1]{{\bm{\tilde \mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\Vhat}[1]{{\bm{\hat \mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\VtildeE}[2]{\tilde{\MakeLowercase{#1}}_{#2}} % vector element
+  - \newcommand{\M}[1]{{\bm{\mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\ME}[2]{\MakeLowercase{#1}_{#2}} % matrix element
+  - \newcommand{\Mtilde}[1]{{\bm{\tilde \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mbar}[1]{{\bm{\bar \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mn}[2]{\M{#1}^{(#2)}} % n-th matrix
+output: pdf_document
+---
+
+**Part 1.** We will work through some details on logistic regression. We first set some notation. Let $\V{x}_i \in \Real^p, y_i \in \{0,1\}$ for $i=1, \ldots, n$. Let $\M{X} \in \Real^{n \times p}$ denote the matrix with $\V{x}_i$ as its $i$th row.
+Recall that the negative log-likelihood $\ell(\V{\beta})$ can be written as follows:
+$$
+\ell(\V{\beta}) = \sum_{i=1}^n \left [- y_i \V{x}_i\Tra\V{\beta} + \log(1 + \exp(\V{x}_i\Tra\V{\beta})) \right].
+$$
+
+1. Write the gradient and Hessian of $\ell(\V{\beta})$. **Hint:** The Hessian $\nabla^2 \ell(\V{\beta})$ can be written as $\M{X}\Tra\M{W}(\V{\beta})\M{X}$ where $\M{W}(\V{\beta})$ is a diagonal matrix that depends on $\V{\beta}$.
+
+**Answer:**
+
+ $\nabla \ell(\V{\beta}) =\frac{\partial \ell(\V{\beta})}{\partial \V{\beta}}=\sum\limits_{i = 1}^n -y_i\V{x}_i + \frac{\V{x}_i\exp(\V{x}_i\Tra\V{\beta})}{1 + \exp(\V{x}_i\Tra\V{\beta})}$. And, $\frac{\partial \ell(\V{\beta})}{\partial \beta_j}=\sum\limits_{i = 1}^n -y_ix_{ij} + \frac{x_{ij}\exp(\V{x}_i\Tra\V{\beta})}{1 + \exp(\V{x}_i\Tra\V{\beta})}$.
+ 
+Let $H = \nabla^2 \ell(\V{\beta})$, so $H_{jk} = \frac{\partial^2 \ell(\V{\beta})}{\partial\beta_j \partial\beta_k}=\sum\limits_{i = 1}^n\frac{x_{ij}x_{ik}\exp(\V{x}_i\Tra\V{\beta})}{(1 + \exp(\V{x}_i\Tra\V{\beta}))^2}$.
+
+Let $\M{X} = \begin{pmatrix}\V{x}_1 & \cdots & \V{x}_n \end{pmatrix}\Tra$ and $\M{W}(\V{\beta}) =  diag\begin{pmatrix}\frac{\exp(\V{x}_1\Tra\V{\beta})}{(1 + \exp(\V{x}_1\Tra\V{\beta}))^2} & \cdots & \frac{\exp(\V{x}_n\Tra\V{\beta})}{(1 + \exp(\V{x}_n\Tra\V{\beta}))^2} \end{pmatrix}$. 
+
+Thus, $\nabla^2 \ell(\V{\beta}) = \M{X}\Tra\M{W}(\V{\beta})\M{X}$.
+
+2. What is the computational complexity for a calculating the gradient and Hessian of $\ell(\V{\beta})$?
+
+**Answer:**
+
+(a) The complexity of calculating the gradient.
+
+(1) $y_i\V{x}_i$: At most, the flops needed for this chunk is $O(p)$;  
+(2) $\V{x}_i\Tra\V{\beta}$: At most, the complexity is $O(p)$;    
+(3) $\frac{\V{x}_i\exp(\V{x}_i\Tra\V{\beta})}{1 + \exp(\V{x}_i\Tra\V{\beta})}$: The flops needed is $p$.  
+
+Hence, in total, the complexity is $O(np)$. 
+
+(b) The complexity of calculating the Hessian.
+
+Assume that we already get the value of $\exp(\V{x}_i\Tra\V{\beta})$. The flops needed for this is $O(np)$
+
+For each entries $\frac{\partial^2 \ell(\V{\beta})}{\partial\beta_j \partial\beta_k}=\sum\limits_{i = 1}^n\frac{x_{ij}x_{ik}\exp(\V{x}_i\Tra\V{\beta})}{(1 + \exp(\V{x}_i\Tra\V{\beta}))^2}$: At most, the complexity is $O(5n)$.
+
+There are $p^2$ entries in Hessian matrix and therefore the complexity is $O(np^2)$. 
+
+3. Under what condition is $\ell(\V{\beta})$ strictly convex?
+
+**Answer:**
+
+If the Hessian of $\ell(\V{\beta})$ is positive definite, $\ell(\V{\beta})$ will be strictly convex. 
+
+That is, for any non-zero $\V{u}\in \Real^{p}$, we have $\V{u}\Tra H\V{u} = \V{u}\Tra\M{X}\Tra\M{W}(\V{\beta})\M{X}\V{u} = \sum\limits_{i = 1}^n \frac{(\V{u}\Tra\V{x}_i)^2\exp(\V{x}_i\Tra\V{\beta})}{(1 + \exp(\V{x}_i\Tra\V{\beta}))^2} > 0$.
+
+4. Prove that $\ell(\V{\beta})$ is $L$-Lipschitz differentiable with $L = \frac{1}{4}\lVert \M{X} \rVert_{\text{op}}^2$.
+
+**Answer:**
+
+It equals to prove that $\nabla \ell(\V{\beta})$ is $L$-Lipschitz differentiable. 
+
+Let $f(x) = \frac{e^x}{1+e^x}$. $f'(x) = \frac{e^x}{(1+e^x)^2}$, $f'(x)$ is increasing when $x < 0$ and $f'(x)$ is decreasing when $x > 0$. So, $max(f'(x)) = f'(0) = \frac{1}{4}$ and $f'(x) > 0$. By Lagrange mean value theorem, we have $f(x)-f(y) = f'(a)(x-y) \leq \frac{1}{4}|x-y|$.
+
+\[
+\begin{array}{rcl}
+\lVert\nabla \ell(\V{\beta}_1) - \nabla \ell(\V{\beta}_2)\rVert
+&=& \lVert\sum\limits_{i = 1}^n\V{x}_i(\frac{\exp(\V{x}_i\Tra\V{\beta}_1)}{1 + \exp(\V{x}_i\Tra\V{\beta}_1)} - \frac{\exp(\V{x}_i\Tra\V{\beta}_2)}{1 + \exp(\V{x}_i\Tra\V{\beta}_2)})\rVert\\
+&\leq&  \lVert\sum\limits_{i = 1}^n\V{x}_i \frac{1}{4}|\V{x}_i\Tra\V{\beta}_1 - \V{x}_i\Tra\V{\beta}_2|\rVert \leq \frac{1}{4}\lVert\V{\beta}_1 - \V{\beta}_2\rVert \lVert\sum\limits_{i = 1}^n \V{x}_i\V{x}_i\Tra \rVert \\
+&=& \frac{1}{4}\lVert\V{\beta}_1 - \V{\beta}_2\rVert\lVert \M{X}\Tra\M{X}\rVert = \frac{1}{4}\lVert \M{X}\rVert_{\text{op}}^2\lVert\V{\beta}_1 - \V{\beta}_2\rVert
+\end{array}
+\]
+
+Therefore, $\ell(\V{\beta})$ is $L$-Lipschitz differentiable with $L = \frac{1}{4}\lVert \M{X} \rVert_{\text{op}}^2$.
+
+5. Suppose that there is a vector $\V{w} \in \Real^p$ such that $\V{x}_i\Tra \V{w} > 0$ if $y_i=1$ and $\V{x}_i\Tra \V{w} < 0$ if $y_i=0$. Prove that $\ell(\V{\beta})$ does not have a global minimum.
+In other words, when the classification problem is completely separable, there is no maximum likelihood estimator.
+
+**Answer:**
+
+Suppose that $\ell(\V{\beta})$ has a a global minimum at the point $\V{\beta}^*$. Since the Hessian $\nabla^2 \ell(\V{\beta})$ is positive semidefinite (shown in question 8), $\ell(\V{\beta})$ is a convex function. We have $\nabla \ell(\V{\beta}^*) = \V{0}$. Thus, $\sum\limits_{i = 1}^n -y_i\V{x}_i + \frac{\V{x}_i\exp(\V{x}_i\Tra\V{\beta}^*)}{1 + \exp(\V{x}_i\Tra\V{\beta}^*)} = 0$, which means $\sum\limits_{i = 1}^n y_i\V{x}_i = \sum\limits_{i = 1}^n \V{x}_i\frac{\exp(\V{x}_i\Tra\V{\beta}^*)}{1 + \exp(\V{x}_i\Tra\V{\beta}^*)}$. Multiple $\V{w}\Tra$ on both sides. We get $\sum\limits_{i = 1}^n y_i\V{w}\Tra\V{x}_i = \sum\limits_{i = 1}^n \V{w}\Tra\V{x}_i\frac{\exp(\V{x}_i\Tra\V{\beta}^*)}{1 + \exp(\V{x}_i\Tra\V{\beta}^*)}$. 
+
+When $y_i=0$, we know that $\V{x}_i\Tra \V{w} < 0$. So, $y_i\V{w}\Tra\V{x}_i = 0 > \V{w}\Tra\V{x}_i\frac{\exp(\V{x}_i\Tra\V{\beta}^*)}{1 + \exp(\V{x}_i\Tra\V{\beta}^*)}$. When $y_i=1$, we know that $\V{x}_i\Tra \V{w} > 0$. So, $y_i\V{w}\Tra\V{x}_i = \V{w}\Tra\V{x}_i > \V{w}\Tra\V{x}_i\frac{\exp(\V{x}_i\Tra\V{\beta}^*)}{1 + \exp(\V{x}_i\Tra\V{\beta}^*)}$. Obviously, we always have $y_i\V{w}\Tra\V{x}_i > \V{w}\Tra\V{x}_i\frac{\exp(\V{x}_i\Tra\V{\beta}^*)}{1 + \exp(\V{x}_i\Tra\V{\beta}^*)}$, for $i=1,\cdots,n$. It contradicts with the result $\sum\limits_{i = 1}^n y_i\V{w}\Tra\V{x}_i = \sum\limits_{i = 1}^n \V{w}\Tra\V{x}_i\frac{\exp(\V{x}_i\Tra\V{\beta}^*)}{1 + \exp(\V{x}_i\Tra\V{\beta}^*)}$. 
+
+Above all, $\ell(\V{\beta})$ does not have a global minimum.
+
+
+To address the completely separable situation, we can modify the negative log-likelihood by adding a ridge penalty, namely we minimize
+$$
+\ell_\lambda(\V{\beta}) = \ell(\V{\beta}) + \frac{\lambda}{2}\lVert \V{\beta} \rVert_2^2,
+$$
+where $\lambda > 0$ is a tuning parameter. By choosing large $\lambda$, we penalize solutions that have large 2-norms.
+
+6. Write the gradient and Hessian of $\ell_\lambda(\V{\beta})$.
+
+**Answer:**
+
+ $\nabla \ell_\lambda(\V{\beta}) =\nabla \ell(\V{\beta}) + \lambda\V{\beta} = \sum\limits_{i = 1}^n \{-y_i\V{x}_i + \frac{\V{x}_i\exp(\V{x}_i\Tra\V{\beta})}{1 + \exp(\V{x}_i\Tra\V{\beta})}\} + \lambda\V{\beta}$.
+ 
+$H_\lambda = \nabla^2 \ell_\lambda(\V{\beta}) = \nabla^2 \ell(\V{\beta}) + \lambda\M{I}_{p}$, where $H_{jk} = \sum\limits_{i = 1}^n\frac{x_{ij}x_{ik}\exp(\V{x}_i\Tra\V{\beta})}{(1 + \exp(\V{x}_i\Tra\V{\beta}))^2} + \lambda\M{I}\{j = k\}$.
+ 
+Thus, $\nabla^2 \ell_\lambda(\V{\beta}) = \M{X}\Tra\M{W}(\V{\beta})\M{X} + \lambda\M{I}_{p}$, where $\M{W}(\V{\beta}) =  diag\begin{pmatrix}\frac{\exp(\V{x}_1\Tra\V{\beta})}{(1 + \exp(\V{x}_1\Tra\V{\beta}))^2} & \cdots & \frac{\exp(\V{x}_n\Tra\V{\beta})}{(1 + \exp(\V{x}_n\Tra\V{\beta}))^2} \end{pmatrix}$.
+
+
+7. What is the computational complexity for a calculating the gradient and Hessian of $\ell_\lambda(\V{\beta})$?
+
+**Answer:**
+
+(a) The complexity of calculating the gradient.
+
+(1) $\nabla \ell(\V{\beta})$: At most, the flops needed for this chunk is $O(np)$;  
+(2) $\lambda\V{\beta}$: At most, the complexity is $O(p)$;    
+(3) add two parts: the complexity is $O(p)$.
+
+Hence, in total, the complexity is $O(np)$. 
+
+(b) The complexity of calculating the Hessian.
+
+(1) $\nabla^2 \ell(\V{\beta})$: At most, the flops needed for this chunk is $O(np^2)$;  
+(2) $\lambda\M{I}_{p}$: At most, the complexity is $O(p)$;    
+(3) add two parts: the complexity is $O(p)$.
+
+Hence, in total, the complexity is $O(np^2)$. 
+
+8. Prove that $\ell_\lambda(\V{\beta})$ has a unique global minimizer for all $\lambda > 0$.
+
+**Answer:**
+
+It is to prove that the Hessian of $\ell(\V{\beta})$ is positive definite. 
+
+That is, for any $\V{u}\in \Real^{p}$, we have $\V{u}\Tra H_\lambda\V{u} = \V{u}\Tra\M{X}\Tra\M{W}(\V{\beta})\M{X}\V{u} + \lambda \V{u}\Tra\V{u} = \sum\limits_{i = 1}^n \frac{(\V{u}\Tra\V{x}_i)^2\exp(\V{x}_i\Tra\V{\beta})}{(1 + \exp(\V{x}_i\Tra\V{\beta}))^2} +  \lambda \V{u}\Tra\V{u}$. 
+
+The first part $\sum\limits_{i = 1}^n \frac{(\V{u}\Tra\V{x}_i)^2\exp(\V{x}_i\Tra\V{\beta})}{(1 + \exp(\V{x}_i\Tra\V{\beta}))^2} \geq 0$ and the second part $\lambda \V{u}\Tra\V{u} > 0$ for any non-zero $\V{u}$. 
+
+Thus, we have $\V{u}\Tra H_\lambda\V{u} > 0$ for any non-zero $\V{u}$. It means the Hessian of $\ell(\V{\beta})$ is positive definite. 
+
+\newpage
+
+**Part 2.** Gradient Descent and Newton's Method
+
+You will next add an implementation of gradient descent and Newton's method to your R package.
+
+Please complete the following steps.
+
+**Step 0:** Make an R package entitled "unityidST790".
+
+**Step 1:** Write a function "gradient_step."
+
+```{r, echo=TRUE}
+#' Gradient Step
+#' 
+#' @param gradf handle to function that returns gradient of objective function
+#' @param x current parameter estimate
+#' @param t step-size
+#' @export
+#gradient_step <- function(gradf, t, x) {
+  
+#}
+```
+Your function should return $\V{x}^+ = \V{x} - t \nabla f(\V{x})$.
+
+**Step 2:** Write a function "gradient_descent_fixed." Terminate the algorithm the relative change in the objective function falls below the tolerance parameter `tol`.
+
+```{r, echo=TRUE}
+#' Gradient Descent (Fixed Step-Size)
+#'
+#' @param fx handle to function that returns objective function values
+#' @param gradf handle to function that returns gradient of objective function
+#' @param x0 initial parameter estimate
+#' @param t step-size
+#' @param max_iter maximum number of iterations
+#' @param tol convergence tolerance
+#' @export
+#gradient_descent_fixed <- function(fx, gradf, t, x0, max_iter=1e2, tol=1e-3) {
+  
+#}
+```
+Your function should return
+
+- The final iterate value
+- The objective function values
+- The 2-norm of the gradient values
+- The relative change in the function values
+- The relative change in the iterate values
+
+\newpage
+
+**Step 3:** Write functions 'fx_logistic' and 'gradf_logistic' to perform ridge logistic regression
+
+```{r, echo=TRUE}
+#' Objective Function for Logistic Regression
+#' 
+#' @param y binary response
+#' @param X design matrix
+#' @param beta regression coefficient vector
+#' @param lambda regularization parameter
+#' @export
+#fx_logistic <- function(y, X, beta, lambda=0) {
+  
+#}
+
+#' Gradient for Logistic Regession
+#'
+#' @param y binary response
+#' @param X design matrix
+#' @param beta regression coefficient vector
+#' @param lambda regularization parameter
+#' @export
+#gradf_logistic <- function(y, X, beta, lambda=0) {
+  
+#}
+```
+
+**Step 4:** Perform logistic regression (with $\lambda = 0$) on the following data example $(\V{y},\M{X})$ using the fixed step-size. Use your answers to Part 1 to choose an appropriate fixed step-size. Plot the difference $\ell(\V{\beta}_k) - \ell(\V{\beta}_{10000})$ versus the iteration $k$. Comment on the shape of the plot given what you know about the iteration complexity of gradient descent with a fixed step size.
+
+- **Hint:** Write wrapper functions around `fx_logistic` and `gradf_logistic` that take in only one argument, the regression coefficient vector $\V{\beta}$.
+
+```{r, echo=TRUE}
+library(rli20ST758)
+set.seed(12345)
+n <- 100
+p <- 2
+
+X <- matrix(rnorm(n*p),n,p)
+beta0 <- matrix(rnorm(p),p,1)
+y <- (runif(n) <= plogis(X%*%beta0)) + 0
+
+L = (norm(X,type="2")^2)/4
+t = 1/(2*L)
+lambda = 0
+
+fx_logistic_wrapper <- function(beta) {
+  return(fx_logistic(y, X, beta,lambda))
+}
+
+gradf_logistic_wrapper <- function(beta) {
+  return(gradf_logistic(y, X, beta,lambda))
+}
+
+fsum = gradient_descent_fixed(fx_logistic_wrapper, gradf_logistic_wrapper, 
+                              t, beta0, max_iter=1e4, tol=1e-4)
+iter_num = length(fsum$fun_val)
+l_beta = c(fsum$fun_val,rep(fsum$fun_val[iter_num],1e4-iter_num))
+l_change = l_beta - l_beta[1e4]
+
+plot(c(1:10000),l_change,type='l',main = 'The difference of l(beta_k)-l(beta_10000)',
+     ylab='l(beta_k)-l(beta_10000)',xlab = 'iteration number')
+
+plot(c(1:100),l_change[1:100],type='l',main = 'The difference of l(beta_k)-l(beta_10000)',
+     ylab='l(beta_k)-l(beta_10000)',xlab = 'iteration number')
+```
+
+Since we know $f(x_k)-f^*\leq C*\frac{1}{k}$, where k is the iteration number and $C_1=\frac{1}{2\alpha}\lVert\V{x}_0-\V{x}^*\rVert_2^2$, a constant. From the upper bound of this inequality, we could expect the shape should be a decaying curve, which matches with what we plot out.     
+Here we provide 2 plots to display the distance to optmial value at each iteration. Since the iteration number needed to terminate is way below 10000, the shape of the curve on 10000 iterations is visionally a right angle. So to display more details and make it comparable to fixed size method, we create the second plot focusing on the first 400 iterations. And we find it decays to 0 within 20 iterations
+
+
+
+**Step 5:** Perform logistic regression (with $\lambda = 10$) on the simulated data above using the fixed step-size. Plot the difference $\ell_\lambda(\V{\beta}_k) - \ell_{\lambda}(\V{\beta}_{10000})$ versus the iteration $k$. Comment on the shape of the plot given what you know about the iteration complexity of gradient descent.
+
+```{r, echo=TRUE}
+lambda = 10
+fsum = gradient_descent_fixed(fx_logistic_wrapper, gradf_logistic_wrapper, 
+                              t, beta0, max_iter=1e4, tol=1e-4)
+iter_num = length(fsum$fun_val)
+l_beta = c(fsum$fun_val,rep(fsum$fun_val[iter_num],1e4-iter_num))
+l_change = l_beta - l_beta[1e4]
+
+plot(c(1:10000),l_change,type='l',main = 'The difference of l(beta_k)-l(beta_10000) 
+     for lambda = 10', ylab='l(beta_k)-l(beta_10000)',xlab = 'iteration number')
+
+plot(c(1:100),l_change[1:100],type='l',main = 'The difference of l(beta_k)-l(beta_10000) 
+     for lambda = 10', ylab='l(beta_k)-l(beta_10000)',xlab = 'iteration number')
+```
+
+Since we know $f(x_k)-f^*\leq C*\frac{1}{k}$, where k is the iteration number and $C_2=\frac{1}{2\alpha_{min}}\lVert\V{x}_0-\V{x}^*\rVert_2^2$, a constant. From the upper bound of this inequality, we could expect the shape should be a decaying curve, which matches with what we plot out.    
+Like Step 4, here we provide 2 plots to display the distance to optmial value at each iteration. Similar to the two plot in Step 4, the shape of the curve on 10000 iterations is visionally a right angle and from the second plot, it decays to 0 within 10 steps. Notice that the plot obtained from $\lambda = 10$ down faster than the one $\lambda = 0$, implying that the optimazation problem with penalty is better than that without penalty.
+
+
+\newpage
+
+For the rest of Part 2, we will investigate the effect of using the Sherman-Morrison-Woodbury identity in improving the scalability of the Newton's method algorithm for ridge logistic regression. We seek to minimize the following objective function
+$$
+\ell(\V{\beta}) = \sum_{i=1}^n \left [- y_i \V{x}_i\Tra \V{\beta} + \log(1 + \exp(\V{x}_i\Tra\V{\beta})) \right] + \frac{\lambda}{2} \lVert \V{\beta} \rVert_2^2
+$$
+
+**Step 6:** Write a function "newton_step_naive" that computes the solution $\Delta \V{\beta}_{\text{nt}}$ to the linear system
+$$
+(\lambda \M{I} + \M{X}\Tra \M{W}(\V{\beta})\M{X})\Delta \V{\beta}_{\text{nt}} = \nabla \ell(\V{\beta}).
+$$
+Use the **chol**, **backsolve**, and **forwardsolve** functions in the base package. The **plogis** function will also be helpful for computing $W(\V{\beta})$.
+
+```{r, echo=TRUE}
+#' Compute Newton Step (Naive) for logistic ridge regression
+#' 
+#' @param X Design matrix
+#' @param y Binary response vector
+#' @param beta Current regression vector estimate
+#' @param g Gradient vector
+#' @param lambda Regularization parameter
+#newton_step_naive <- function(X, y, beta, g, lambda) {
+  
+#}
+```
+Your function should return the Newton step $\Delta \V{\beta}_{\text{nt}}$.
+
+**Step 7:** Write a function "newton_step_smw" that computes the Newton step using the Sherman-Morrison-Woodbury identity to reduce the computational complexity of computing the Newton step from $\mathcal{O}(p^3)$ to $\mathcal{O}(n^2p)$. This is a reduction when $n < p$.
+
+```{r, echo=TRUE}
+#' Compute Newton Step (Sherman-Morrison-Woodbury) for logistic ridge regression
+#' 
+#' @param X Design matrix
+#' @param y Binary response vector
+#' @param beta Current regression vector estimate
+#' @param g Gradient vector
+#' @param lambda Regularization parameter
+#newton_step_smw <- function(X, y, beta, g, lambda) {
+  
+#}
+```
+Your function should return the Newton step $\Delta \V{\beta}_{\text{nt}}$.
+
+\newpage
+
+**Step 8** Write a function "backtrack_descent"
+
+```{r, echo=TRUE}
+#' Backtracking for steepest descent
+#' 
+#' @param fx handle to function that returns objective function values
+#' @param x current parameter estimate
+#' @param t current step-size
+#' @param df the value of the gradient of objective function evaluated at the current x
+#' @param d descent direction vector
+#' @param alpha the backtracking parameter
+#' @param beta the decrementing multiplier
+#backtrack_descent <- function(fx, x, t, df, d, alpha=0.5, beta=0.9) {
+  
+#}
+```
+Your function should return the selected step-size.
+
+
+**Step 9:** Write functions "logistic_ridge_newton" to estimate a ridge logistic regression model using damped Newton's method. Terminate the algorithm when half the square of the Newton decrement falls below  the tolerance parameter `tol`.
+
+```{r, echo=TRUE}
+#' Damped Newton's Method for Fitting Ridge Logistic Regression
+#' 
+#' @param y Binary response
+#' @param X Design matrix
+#' @param beta Initial regression coefficient vector
+#' @param lambda regularization parameter
+#' @param naive Boolean variable; TRUE if using Cholesky on the Hessian
+#' @param max_iter maximum number of iterations
+#' @param tol convergence tolerance
+#logistic_ridge_newton <- function(X, y, beta, lambda=0, naive=TRUE, max_iter=1e2, tol=1e-3) {
+  
+#}
+```
+
+**Step 10:** Perform logistic regression (with $\lambda = 10$) on the following 3 data examples $(y,X)$ using Newton's method and the naive Newton step calculation. Record the times for each using **system.time**.
+
+```{r, echo=TRUE}
+lambda = 10
+iter = 1e2
+
+set.seed(12345)
+## Data set 1
+n <- 200
+p <- 400
+
+X1 <- matrix(rnorm(n*p),n,p)
+beta01 <- matrix(rnorm(p),p,1)
+y1 <- (runif(n) <= plogis(X1%*%beta01)) + 0
+
+X = X1
+y = y1
+beta0 = beta01
+
+time1 = system.time({logistic_ridge_newton(X, y, beta0, lambda, naive=TRUE, 
+                                           max_iter=iter, tol=1e-3)})[3]
+
+## Data set 2
+p <- 800
+X2 <- matrix(rnorm(n*p),n,p)
+beta02 <- matrix(rnorm(p),p,1)
+y2 <- (runif(n) <= plogis(X2%*%beta02)) + 0
+
+X = X2
+y = y2
+beta0 = beta02
+time2 = system.time({logistic_ridge_newton(X, y, beta0, lambda, naive=TRUE, 
+                                           max_iter=iter, tol=1e-3)})[3]
+
+## Data set 3
+p <- 1600
+X3 <- matrix(rnorm(n*p),n,p)
+beta03 <- matrix(rnorm(p),p,1)
+y3 <- (runif(n) <= plogis(X3%*%beta03)) + 0
+
+X = X3
+y = y3
+beta0 = beta03
+time3 = system.time({logistic_ridge_newton(X, y, beta0, lambda, naive=TRUE, 
+                                           max_iter=iter, tol=1e-3)})[3]
+```
+
+**Step 11:** Perform logistic regression (with $\lambda = 10$) on the following 3 data examples $(y,X)$ using Newton's method and the Newton step calculated using the  Sherman-Morrison-Woodbury identity. Record the times for each using **system.time**.
+
+```{r, echo=TRUE}
+## Data set 1
+X = X1
+y = y1
+beta0 = beta01
+
+time4 = system.time({logistic_ridge_newton(X, y, beta0, lambda, naive=FALSE, 
+                                           max_iter=iter, tol=1e-3)})[3]
+
+## Data set 2
+X = X2
+y = y2
+beta0 = beta02
+
+time5 = system.time({logistic_ridge_newton(X, y, beta0, lambda, naive=FALSE, 
+                                           max_iter=iter, tol=1e-3)})[3]
+
+## Data set 3
+X = X3
+y = y3
+beta0 = beta03
+
+time6 = system.time({logistic_ridge_newton(X, y, beta0, lambda, naive=FALSE, 
+                                           max_iter=iter, tol=1e-3)})[3]
+```
+
+**Step 12:** Plot all six run times against $p$. Comment on the how the two run-times scale with $p$ and compare it to what you know about the computational complexity for the two ways to compute the Newton update.
+
+```{r, echo=TRUE}
+time = c(time1,time2,time3,time4,time5,time6)
+time
+
+plot(c(400,800,1600),c(time1,time2,time3),type = 'p',pch = "o",col='red',
+     main = 'Run time against p',ylab='run time',xlab = 'p')
+points(c(400,800,1600),c(time4,time5,time6),type = 'p',pch = "*",col='black')
+legend("topleft",legend=c("naive","smw"), col=c("red","black"),pch = c("o","*"))
+```
+
+When $p > n$, for naive Newton step, the computational complexity is $O(p^3)$. Using the Sherman-Morrison- Woodbury identity, the computational complexity is $O(n^2p)$. So, time1 : time2 : time3 should be 1:8:64. My result is 1:4.3:25.7. time4 : time5 : time6 should be 1:2:4. My result is 1:2.7:10. What's more, time1/time4 = 4, time2/time5 = 16 and time3/time6 = 64. From my result, time1/time4 = 1, time2/time5 = 1.73 and time3/time6 = 3.17. Although my results are not abosultely equal to the theoratic values, relative sizes of run time are right. It makes sense. When $p > n$, using the Sherman-Morrison- Woodbury identity, we can obviously reduce the computational complexity.
+

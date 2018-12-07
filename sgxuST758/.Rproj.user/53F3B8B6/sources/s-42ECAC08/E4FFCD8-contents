@@ -1,0 +1,486 @@
+---
+title: "ST740 HW5"
+author: "Steven Xu"
+date: "October 20, 2018"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache=TRUE)
+library(R2WinBUGS)
+library(invgamma)
+library(rmutil)
+library(ars)
+library(MASS)
+```
+
+**1.**
+
+**(a)**
+
+We have:
+
+$$
+\begin{aligned}
+f(Y|\beta,\sigma^2) &= (2\pi\sigma^2)^{-\frac{n}{2}}exp\left\{-\frac{1}{2\sigma^2}(Y-X\beta)^T(Y-X\beta)\right\} \\
+f(\beta|\sigma^2) &= \left (\frac{\lambda}{2\sigma^2}\right )^{m} exp\left\{ -\frac{\lambda}{\sigma^2}\sum_{j=1}^m|\beta_j| \right\} \\
+f(\sigma^2) &=\frac{b^a}{\Gamma(a)}\left (\frac{1}{\sigma^2} \right )^{a+1}exp\left\{-\frac{b}{\sigma^2}\right\} \\ 
+\therefore \ f(\beta,\sigma^2) & = \frac{b^a}{\Gamma(a)}\left(\frac{\lambda}{2}\right)^{m}\left(\frac{1}{\sigma^2}\right)^{\frac{n}{2}+a+m+1}exp\left\{-\frac{1}{\sigma^2}(b+\lambda\sum_{j=1}^m{|\beta_j|})\right\} \\
+\therefore \ f(\beta,\sigma^2|Y) &\propto \left(\frac{1}{\sigma^2}\right)^{\frac{n}{2}+a+m+1}exp\left\{-\frac{1}{2\sigma^2}(Y-X\beta)^T(Y-X\beta)-\frac{1}{\sigma^2}(b+\lambda\sum_{j=1}^m|\beta_j|)\right\} \\
+& = \left(\frac{1}{\sigma^2}\right)^{\frac{n}{2}+a+m+1}exp\left\{-\frac{1}{2\sigma^2}(Y^T Y-2\beta^T X^T Y+\beta^T X^T X\beta)-\frac{1}{\sigma^2}(b+\lambda\sum_{j=1}^m|\beta_j|)\right\} \\
+& \propto \left(\frac{1}{\sigma^2}\right)^{\frac{n}{2}+a+m+1}exp\left\{-\frac{1}{2\sigma^2}(\beta^T H\beta-2\beta^T b+2b+2\lambda\sum_{j=1}^m|\beta_j|)\right\} \\
+\therefore \ f(\beta|\sigma^2,Y) &\propto exp\left\{-\frac{1}{2\sigma^2}(\beta^T H\beta-2\beta^T b+2\lambda\sum_{j=1}^m|\beta_j|)\right\}
+\end{aligned}
+$$
+
+**(b)**
+
+From result of part (a) we have
+
+$$
+\begin{aligned}
+f(\beta,\sigma^2|Y) &\propto \left(\frac{1}{\sigma^2}\right)^{\frac{n}{2}+a+m+1}exp\left\{-\frac{1}{2\sigma^2}(Y^T Y+\beta^T H\beta-2\beta^T b+2b+2\lambda\sum_{j=1}^m|\beta_j|)\right\} \\
+\text{jf we let } a^* &= \frac{n}{2}+a+m \ \text{ and } \ b^* =  \frac{1}{2}(Y^T Y+\beta^T H\beta-2\beta^T b+2b+2\lambda\sum_{j=1}^m|\beta_j|) \\
+\text{then } \ f(\sigma^2|\beta,Y) &\propto \left(\frac{1}{\sigma^2}\right)^{a^*+1}exp\left\{-\frac{b^*}{\sigma^2}\right\} \\ \\
+\therefore \ \sigma^2|\beta,Y &\sim IG(a^*,b^*)
+\end{aligned}
+$$
+
+**(c)**
+
+We can rewrite $\beta^T H\beta$ as $\sum_{j=1}^m\sum_{k=1}^m\beta_jh_{jk}\beta_k$ and $\beta^T b$ as $\sum_{j=1}^m\beta_jb_j$. 
+
+$$
+\begin{aligned}
+\therefore \ f(\beta|\sigma^2,Y) &\propto exp\left\{-\frac{1}{2\sigma^2}(\sum_{j=1}^m\sum_{k=1}^m\beta_jh_{jk}\beta_k-2\sum_{j=1}^m\beta_jb_j+2\lambda\sum_{j=1}^m|\beta_j|)\right\} \\
+&= exp\left\{-\frac{1}{2\sigma^2}\sum_{j=1}^m(\sum_{k=1}^m\beta_jh_{jk}\beta_k-2\beta_jb_j+2\lambda|\beta_j|)\right\} \\
+&= exp\left\{-\frac{1}{2\sigma^2}\sum_{j=1}^m(h_{jj}\beta_j^2+\beta_j\sum_{k\ne j}h_{jk}\beta_k-2\beta_jb_j+2\lambda|\beta_j|)\right\} \\
+&= exp\left\{-\frac{1}{2\sigma^2}\sum_{j=1}^m(h_{jj}\beta_j^2-2c_j\beta_j+2\lambda|\beta_j|)\right\} \\
+&= \prod_{j=1}^mexp\left\{-\frac{1}{2\sigma^2}(h_{jj}\beta_j^2-2c_j\beta_j+2\lambda|\beta_j|)\right\} \\\\
+\text{this can be seen as the joint distribution of} & \  \beta_1|\beta_{k\ne1}, ... ,\beta_m|\beta_{k\ne m}. \\
+\therefore \ f(\beta_j|\beta_k, \ \forall \ k\ne j,\ \sigma^2,Y) &= exp\left\{-\frac{1}{2\sigma^2}(h_{jj}\beta_j^2-2c_j\beta_j+2\lambda|\beta_j|)\right\}
+\end{aligned}
+$$
+
+**(d)**
+
+$$
+\begin{aligned}
+logf(\beta_j|\beta_k, \ \forall \ k\ne j,\ \sigma^2,Y) &\propto -\frac{1}{2\sigma^2}(h_{jj}\beta_j^2-2c_j\beta_j+2\lambda|\beta_j|) \\
+\text{we know that } H &= X^T X \\
+\therefore h_{jj} &=x_j^T x_j \ \text{where } x_j \text{ is the jth colum of }X \\
+\therefore h_{jj} &= \sum_{k=1}^m x_{jk}^2 >0 \\
+\text{then } logf(\beta_j|\beta_k, \ \forall \ k\ne j,\ \sigma^2,Y) & \text{ is a concave parabola, we can use adaptive rejection sampling} \\
+\end{aligned}
+$$
+
+```{r}
+#X = matrix(rnorm(25),nrow = 5)
+#Y = X%*%t(beta)+rnorm(12,0,sqrt(sigma2))
+#bvec = t(X)%*%Y
+arsamp = function(n,beta_old,j,H,sigma2,lambda){
+  m = length(bvec)
+  hjj = H[j,j]
+  vec = (1:m)[-j]
+  cj = as.numeric(bvec[j] - 1/2*t(H[j,vec])%*%beta_old[vec])
+  f = function(x){
+  return(-1/(2*sigma2)*(hjj*x^2-2*cj*x+2*lambda*abs(x)))
+  }
+  fprima = function(x){
+    return(-1/(sigma2)*(hjj*x-cj-lambda*(x<0)+lambda*(x>=0)))
+  }
+  mysample = ars(n,f,fprima)
+  mysample
+}
+```
+
+The above function generates n samples from the kernel $f(\beta_j|\beta_k, \ \forall \ k\ne j,\ \sigma^2,Y)$ for a given j using ARS.
+
+**(e)**
+
+For given covariates, by doing the algorithm below one can obtain posterior distribution of $(\beta,\sigma^2)$ using Gibbs sampling.
+
+$$
+\begin{aligned}
+\text{for kth iteration:} \\
+b^* &= \frac{1}{2}(\beta_{(k-1)} ^T H\beta_{(k-1)}+Y^T Y-2\beta_{(k-1)} ^T b+2\lambda\sum_{j=1}^m|\beta_{j(k-1)}|))\\
+a^* &= \frac{1}{2}n+a+m \\\\
+\sigma^2_{(k)} &\sim \ IG(a^*,b^*) \\\\
+\beta^{k} &\sim \ \text{ARS} \\\\
+\rightarrow (\beta,\sigma^2) & \text{ posterior}
+\end{aligned}
+$$
+
+```{r}
+# for(i in 2:n.samples){
+#   beta = matrix(samples[i-1,1:12],ncol=1)
+#   sigma2 = samples[i-1,13]
+#   bstar = 1/2*(t(beta)%*%H%*%beta+t(Y)%*%Y-2*t(beta)%*%bvec+2*lambda*sum(abs(beta))+2*b)
+#   astar = 1/2*n+a+m
+#   sigma2_new = rinvgamma(1,astar,bstar)
+#   beta_new = as.numeric(beta)
+#   for(j in 1:12){
+#     beta_temp = arsamp(1,beta_new,j,H)
+#     beta_new[j] = beta_temp
+#   }
+#   samples[i,] <- c(beta_new,sigma2_new)
+# }
+```
+
+**2**
+
+**(a)**
+
+
+
+```{r}
+attach(Boston)
+#summary(Boston)
+Y=scale(medv)
+n=length(Y)
+X=scale(cbind(crim,zn,indus,rm,age,dis,tax,ptratio,black,lstat))
+X=cbind(rep(1,n),X,chas)
+X_dat = data.frame(X)
+out = summary(fit<-lm(Y~0+.,data = X_dat))
+beta = out$coefficients[,1]
+b_names = names(beta)
+b_names[1] = "intercept"
+se = out$coefficients[,2]
+s2 = var(fit$residuals)
+df = out$df[2]
+#95% CI for coefficients
+cbind((beta - qt(0.975,df)*se),(beta + qt(0.975,df)*se))
+#95% CI for sigma^2
+c(df*s2/qchisq(0.975,df),df*s2/qchisq(0.025,df))
+
+```
+
+**(b)-(d)**
+
+```{r}
+a=2.01;b=1.01;lambda=1
+n.samples = 15000
+samples = matrix(0,n.samples,13)
+colnames(samples) = c(b_names,"sigma2")
+samples[1,] = c(as.numeric(beta),s2)
+H = t(X)%*%(X)
+bvec = t(X)%*%Y
+n = dim(X)[1]
+m = dim(X)[2]
+for(i in 2:n.samples){
+  beta = matrix(samples[i-1,1:12],ncol=1)
+  sigma2 = samples[i-1,13]
+  bstar = 1/2*(t(beta)%*%H%*%beta+t(Y)%*%Y-2*t(beta)%*%bvec+2*lambda*sum(abs(beta))+2*b)
+  astar = 1/2*n+a+m
+  sigma2_new = rinvgamma(1,astar,bstar)
+  beta_new = as.numeric(beta)
+  for(j in 1:12){
+    beta_temp = arsamp(1,beta_new,j,H,sigma2_new,lambda)
+    beta_new[j] = beta_temp
+  }
+  samples[i,] <- c(beta_new,sigma2_new)
+}
+plot(2:15000,samples[2:15000,1],type="l",ylab=expression(beta),xlab="iteration",ylim=c(min(samples),max(samples)),main="trace plot")
+for(i in 2:12){
+  lines(2:15000,samples[2:15000,i],type="l",col=i)
+}
+plot(2:15000,samples[2:15000,13],type="l",ylab=expression(sigma^2),xlab="iteration",main="trace plot",col="steel blue")
+par(mfrow=c(2,3))
+acf(samples[2:15000,1],lag.max=15000,main=expression(beta[0]))
+acf(samples[2:15000,2],lag.max=15000,main=expression(beta[1]))
+acf(samples[2:15000,3],lag.max=15000,main=expression(beta[2]))
+acf(samples[2:15000,4],lag.max=15000,main=expression(beta[3]))
+acf(samples[2:15000,5],lag.max=15000,main=expression(beta[4]))
+acf(samples[2:15000,6],lag.max=15000,main=expression(beta[5]))
+acf(samples[2:15000,7],lag.max=15000,main=expression(beta[6]))
+acf(samples[2:15000,8],lag.max=15000,main=expression(beta[7]))
+acf(samples[2:15000,9],lag.max=15000,main=expression(beta[8]))
+acf(samples[2:15000,10],lag.max=15000,main=expression(beta[9]))
+acf(samples[2:15000,11],lag.max=15000,main=expression(beta[10]))
+acf(samples[2:15000,12],lag.max=15000,main=expression(beta[11]))
+par(mfrow=c(1,1))
+acf(samples[2:15000,13],lag.max=15000,main=expression(sigma^2))
+boxplot(samples[5001:15000,1:12])
+abline(h=0)
+post.med = numeric(13)
+q1 = numeric(13)
+q2 = numeric(13)
+for(i in 1:13){
+  post.med[i] = median(samples[,i])
+  q1[i] = quantile(samples[,i],probs=0.025)
+  q2[i] = quantile(samples[,i],probs=0.975)
+}
+names(post.med) <- c(b_names,"sigma2")
+post.med
+q = cbind(q1,q2)
+rownames(q) <- c(b_names,"sigma2")
+q
+```
+
+**(e)**: $\lambda=10$
+
+```{r}
+a=2.01;b=1.01;lambda=10
+beta = out$coefficients[,1]
+n.samples = 15000
+samples = matrix(0,n.samples,13)
+colnames(samples) = c(b_names,"sigma2")
+samples[1,] = c(as.numeric(beta),s2)
+H = t(X)%*%(X)
+bvec = t(X)%*%Y
+n = dim(X)[1]
+m = dim(X)[2]
+for(i in 2:n.samples){
+  beta = matrix(samples[i-1,1:12],ncol=1)
+  sigma2 = samples[i-1,13]
+  bstar = 1/2*(t(beta)%*%H%*%beta+t(Y)%*%Y-2*t(beta)%*%bvec+2*lambda*sum(abs(beta))+2*b)
+  astar = 1/2*n+a+m
+  sigma2_new = rinvgamma(1,astar,bstar)
+  beta_new = as.numeric(beta)
+  for(j in 1:12){
+    beta_temp = arsamp(1,beta_new,j,H,sigma2_new,lambda)
+    beta_new[j] = beta_temp
+  }
+  samples[i,] <- c(beta_new,sigma2_new)
+}
+plot(2:15000,samples[2:15000,1],type="l",ylab=expression(beta),xlab="iteration",ylim=c(min(samples),max(samples)),main="trace plot")
+for(i in 2:12){
+  lines(2:15000,samples[2:15000,i],type="l",col=i)
+}
+plot(2:15000,samples[2:15000,13],type="l",ylab=expression(sigma^2),xlab="iteration",main="trace plot",col="steel blue")
+par(mfrow=c(2,3))
+acf(samples[2:15000,1],lag.max=15000,main=expression(beta[0]))
+acf(samples[2:15000,2],lag.max=15000,main=expression(beta[1]))
+acf(samples[2:15000,3],lag.max=15000,main=expression(beta[2]))
+acf(samples[2:15000,4],lag.max=15000,main=expression(beta[3]))
+acf(samples[2:15000,5],lag.max=15000,main=expression(beta[4]))
+acf(samples[2:15000,6],lag.max=15000,main=expression(beta[5]))
+acf(samples[2:15000,7],lag.max=15000,main=expression(beta[6]))
+acf(samples[2:15000,8],lag.max=15000,main=expression(beta[7]))
+acf(samples[2:15000,9],lag.max=15000,main=expression(beta[8]))
+acf(samples[2:15000,10],lag.max=15000,main=expression(beta[9]))
+acf(samples[2:15000,11],lag.max=15000,main=expression(beta[10]))
+acf(samples[2:15000,12],lag.max=15000,main=expression(beta[11]))
+par(mfrow=c(1,1))
+acf(samples[2:15000,13],lag.max=15000,main=expression(sigma^2))
+boxplot(samples[5001:15000,1:12])
+abline(h=0)
+post.med = numeric(13)
+q1 = numeric(13)
+q2 = numeric(13)
+for(i in 1:13){
+  post.med[i] = median(samples[,i])
+  q1[i] = quantile(samples[,i],probs=0.025)
+  q2[i] = quantile(samples[,i],probs=0.975)
+}
+names(post.med) <- c(b_names,"sigma2")
+post.med
+q = cbind(q1,q2)
+rownames(q) <- c(b_names,"sigma2")
+q
+```
+
+**(f)**: : $\lambda=0.1$
+
+```{r}
+a=2.01;b=1.01;lambda=0.1
+beta = out$coefficients[,1]
+n.samples = 15000
+samples = matrix(0,n.samples,13)
+colnames(samples) = c(b_names,"sigma2")
+samples[1,] = c(as.numeric(beta),s2)
+H = t(X)%*%(X)
+bvec = t(X)%*%Y
+n = dim(X)[1]
+m = dim(X)[2]
+for(i in 2:n.samples){
+  beta = matrix(samples[i-1,1:12],ncol=1)
+  sigma2 = samples[i-1,13]
+  bstar = 1/2*(t(beta)%*%H%*%beta+t(Y)%*%Y-2*t(beta)%*%bvec+2*lambda*sum(abs(beta))+2*b)
+  astar = 1/2*n+a+m
+  sigma2_new = rinvgamma(1,astar,bstar)
+  beta_new = as.numeric(beta)
+  for(j in 1:12){
+    beta_temp = arsamp(1,beta_new,j,H,sigma2_new,lambda)
+    beta_new[j] = beta_temp
+  }
+  samples[i,] <- c(beta_new,sigma2_new)
+}
+plot(2:15000,samples[2:15000,1],type="l",ylab=expression(beta),xlab="iteration",ylim=c(min(samples[,1:12]),max(samples[,1:12])),main="trace plot")
+for(i in 2:12){
+  lines(2:15000,samples[2:15000,i],type="l",col=i)
+}
+plot(2:15000,samples[2:15000,13],type="l",ylab=expression(sigma^2),xlab="iteration",main="trace plot",col="steel blue")
+par(mfrow=c(2,3))
+acf(samples[2:15000,1],lag.max=15000,main=expression(beta[0]))
+acf(samples[2:15000,2],lag.max=15000,main=expression(beta[1]))
+acf(samples[2:15000,3],lag.max=15000,main=expression(beta[2]))
+acf(samples[2:15000,4],lag.max=15000,main=expression(beta[3]))
+acf(samples[2:15000,5],lag.max=15000,main=expression(beta[4]))
+acf(samples[2:15000,6],lag.max=15000,main=expression(beta[5]))
+acf(samples[2:15000,7],lag.max=15000,main=expression(beta[6]))
+acf(samples[2:15000,8],lag.max=15000,main=expression(beta[7]))
+acf(samples[2:15000,9],lag.max=15000,main=expression(beta[8]))
+acf(samples[2:15000,10],lag.max=15000,main=expression(beta[9]))
+acf(samples[2:15000,11],lag.max=15000,main=expression(beta[10]))
+acf(samples[2:15000,12],lag.max=15000,main=expression(beta[11]))
+par(mfrow=c(1,1))
+acf(samples[2:15000,13],lag.max=15000,main=expression(sigma^2))
+boxplot(samples[5001:15000,1:12])
+abline(h=0)
+post.med = numeric(13)
+q1 = numeric(13)
+q2 = numeric(13)
+for(i in 1:13){
+  post.med[i] = median(samples[,i])
+  q1[i] = quantile(samples[,i],probs=0.025)
+  q2[i] = quantile(samples[,i],probs=0.975)
+}
+names(post.med) <- c(b_names,"sigma2")
+post.med
+q = cbind(q1,q2)
+rownames(q) <- c(b_names,"sigma2")
+q
+```
+
+**3.**
+
+**(a)-(b)**
+
+$$
+\begin{aligned}
+f(\beta|\sigma^2,\lambda) &= \left (\frac{\lambda}{2\sigma^2}\right )^{m} exp\left\{ -\frac{\lambda}{\sigma^2}\sum_{j=1}^m|\beta_j| \right\} \\
+f(\sigma^2) &=\frac{b^a}{\Gamma(a)}\left (\frac{1}{\sigma^2} \right )^{a+1}exp\left\{-\frac{b}{\sigma^2}\right\} \\ 
+f(\lambda) &= \frac{d^c}{\Gamma(c)}\lambda^{c-1}exp\{-d\lambda\} \\
+f(\beta,\sigma^2,\lambda|Y) &\propto \left(\frac{1}{\sigma^2}\right)^{\frac{n}{2}+a+m+1}exp\left\{-\frac{1}{2\sigma^2}(Y-X\beta)^T(Y-X\beta)-\frac{1}{\sigma^2}(b+\lambda\sum_{j=1}^m|\beta_j|)\right\}\lambda^{m+c-1}exp\{-d\lambda\}\\
+f(\beta,\sigma^2,|\lambda,Y) &\propto \left(\frac{1}{\sigma^2}\right)^{\frac{n}{2}+a+m+1}exp\left\{-\frac{1}{2\sigma^2}(Y-X\beta)^T(Y-X\beta)-\frac{1}{\sigma^2}(b+\lambda\sum_{j=1}^m|\beta_j|)\right\} \\
+\text{which exactly equals to }& f(\beta,\sigma^2|Y) \text{ in part 1}. 
+\end{aligned}
+$$
+
+We can see that $Y$ marginally does not depend on $\lambda$, therefore when conditioned on $\lambda$, $f(\lambda)$ can be viewed as a constant and thus the answer for part 1(a) and 1(b) will not change.
+
+**(c)**
+
+From **3(b)** we have:
+
+$$
+\begin{aligned}
+f(\beta,\sigma^2,\lambda|Y) &\propto \left(\frac{1}{\sigma^2}\right)^{\frac{n}{2}+a+m+1}exp\left\{-\frac{1}{2\sigma^2}(Y-X\beta)^T(Y-X\beta)-\frac{1}{\sigma^2}(b+\lambda\sum_{j=1}^m|\beta_j|)\right\}\lambda^{m+c-1}exp\{-d\lambda\} \\
+\therefore f(\lambda|\beta,\sigma^2,Y)& = \lambda^{m+c-1}exp\left\{-\frac{\lambda}{\sigma^2}\sum_{j=1}^m|\beta_j|-d\lambda\right\} \\
+&= \lambda^{m+c-1}exp\left\{-(\frac{1}{\sigma^2}\sum_{j=1}^m|\beta_j|+d)\lambda\right\} \\
+\text{Let } c^* &= m+c, \ d^* =  \frac{1}{\sigma^2}\sum_{j=1}^m|\beta_j|+d \\
+\text{then } & f(\lambda|\beta,\sigma^2,Y)\sim Gamma(c^*,d^*).
+\end{aligned}
+$$
+
+**(d)**
+
+For given covariates, by doing the algorithm below one can obtain posterior distribution of $(\beta,\sigma^2,\lambda)$ using Gibbs sampling.
+
+$$
+\begin{aligned}
+\text{for kth iteration:} \\
+b^* &= \frac{1}{2}(\beta_{(k-1)} ^T H\beta_{(k-1)}+Y^T Y-2\beta_{(k-1)} ^T b+2\lambda\sum_{j=1}^m|\beta_{j(k-1)}|))\\
+a^* &= \frac{1}{2}n+a+m \\\\
+c^* &= m+c\\\\
+d^* &= \frac{1}{\sigma_{(k-1)}^2}\sum_{j=1}^m|\beta_{j(k-1)}|+d\\\\
+\sigma^2_{(k)} &\sim \ IG(a^*,b^*) \\\\
+\lambda^{(k)} &\sim \ Ga(c^*,d^*)\\\\
+\beta^{(k)} &\sim \ \text{ARS} \\\\
+\rightarrow (\beta,\sigma^2,\lambda) & \text{ posterior}
+\end{aligned}
+$$
+
+
+```{r}
+# for(i in 2:n.samples){
+#   beta = matrix(samples[i-1,1:12],ncol=1)
+#   sigma2 = samples[i-1,13]
+#   lambda = samples[i-1,14]
+#   bstar = 1/2*(t(beta)%*%H%*%beta+t(Y)%*%Y-2*t(beta)%*%bvec+2*lambda*sum(abs(beta))+2*b)
+#   astar = 1/2*n+a+m
+#   cstar = m+c
+#   dstar = 1/sigma2*sum(abs(beta))+d
+#   sigma2_new = rinvgamma(1,astar,bstar)
+#   lambda_new = rgamma(1,cstar,dstar)
+#   beta_new = as.numeric(beta)
+#   for(j in 1:12){
+#     beta_temp = arsamp(1,beta_new,j,H)
+#     beta_new[j] = beta_temp
+#   }
+#   samples[i,] <- c(beta_new,sigma2_new)
+# }
+```
+
+**(e)**
+
+```{r}
+a=2.01;b=1.01;c=0.4;d=0.2
+lambda = rgamma(1,c,d)
+beta = out$coefficients[,1]
+n.samples = 15000
+samples = matrix(0,n.samples,14)
+colnames(samples) = c(b_names,"sigma2","lambda")
+samples[1,] = c(as.numeric(beta),s2,lambda)
+H = t(X)%*%(X)
+bvec = t(X)%*%Y
+n = dim(X)[1]
+m = dim(X)[2]
+for(i in 2:n.samples){
+  beta = matrix(samples[i-1,1:12],ncol=1)
+  sigma2 = samples[i-1,13]
+  lambda = samples[i-1,14]
+  bstar = 1/2*(t(beta)%*%H%*%beta+t(Y)%*%Y-2*t(beta)%*%bvec+2*lambda*sum(abs(beta))+2*b)
+  astar = 1/2*n+a+m
+  cstar = m+c
+  dstar = 1/sigma2*sum(abs(beta))+d
+  sigma2_new = rinvgamma(1,astar,bstar)
+  lambda_new = rgamma(1,cstar,dstar)
+  beta_new = as.numeric(beta)
+  for(j in 1:12){
+    beta_temp = arsamp(1,beta_new,j,H,sigma2_new,lambda_new)
+    beta_new[j] = beta_temp
+  }
+  samples[i,] <- c(beta_new,sigma2_new,lambda_new)
+}
+plot(2:15000,samples[2:15000,1],type="l",ylab=expression(beta),xlab="iteration",ylim=c(min(samples[,1:12]),max(samples[,1:12])),main="trace plot")
+for(i in 2:12){
+  lines(2:15000,samples[2:15000,i],type="l",col=i)
+}
+plot(2:15000,samples[2:15000,13],type="l",ylab=expression(sigma^2),xlab="iteration",main="trace plot",col="steel blue")
+plot(2:15000,samples[2:15000,14],type="l",ylab=expression(lambda),xlab="iteration",main="trace plot",col=36)
+par(mfrow=c(2,3))
+acf(samples[2:15000,1],lag.max=15000,main=expression(beta[0]))
+acf(samples[2:15000,2],lag.max=15000,main=expression(beta[1]))
+acf(samples[2:15000,3],lag.max=15000,main=expression(beta[2]))
+acf(samples[2:15000,4],lag.max=15000,main=expression(beta[3]))
+acf(samples[2:15000,5],lag.max=15000,main=expression(beta[4]))
+acf(samples[2:15000,6],lag.max=15000,main=expression(beta[5]))
+acf(samples[2:15000,7],lag.max=15000,main=expression(beta[6]))
+acf(samples[2:15000,8],lag.max=15000,main=expression(beta[7]))
+acf(samples[2:15000,9],lag.max=15000,main=expression(beta[8]))
+acf(samples[2:15000,10],lag.max=15000,main=expression(beta[9]))
+acf(samples[2:15000,11],lag.max=15000,main=expression(beta[10]))
+acf(samples[2:15000,12],lag.max=15000,main=expression(beta[11]))
+par(mfrow=c(1,1))
+acf(samples[2:15000,13],lag.max=15000,main=expression(sigma^2))
+acf(samples[2:15000,14],lag.max=15000,main=expression(lambda))
+boxplot(samples[5001:15000,1:12])
+abline(h=0)
+post.med = numeric(13)
+q1 = numeric(13)
+q2 = numeric(13)
+for(i in 1:14){
+  post.med[i] = median(samples[,i])
+  q1[i] = quantile(samples[,i],probs=0.025)
+  q2[i] = quantile(samples[,i],probs=0.975)
+}
+names(post.med) <- c(b_names,"sigma2","lambda")
+post.med
+q = cbind(q1,q2)
+rownames(q) <- c(b_names,"sigma2","lambda")
+q
+```

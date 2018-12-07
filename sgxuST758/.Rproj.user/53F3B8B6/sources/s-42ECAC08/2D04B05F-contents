@@ -1,0 +1,63 @@
+#' Ridge Regression
+#'
+#' \code{ridge_regression} returns the ridge regression coefficient estimates
+#' for a sequence of regularization parameter values.
+#'
+#' @param y response variables
+#' @param X design matrix
+#' @param lambda vector of tuning parameters
+#' @import Matrix
+#' @export
+ridge_regression <- function(y, X, lambda) {
+  if(sum(lambda<0)>0) stop("tuning parameters cannot be negative")
+  y = matrix(y,ncol=1)
+  if(is.null(dim(X))){
+    X = as.matrix(X)
+  }
+  n = dim(X)[1]
+  p = dim(X)[2]
+  I = diag(p)
+  s = svd(X)
+  d = s$d
+  d = diag(d)
+  u = s$u
+  v = s$v
+  b_mat = matrix(0,ncol=length(lambda),nrow=p)
+  for(i in 1:length(lambda)){
+    Z = t(d)%*%d+lambda[i]*I
+    b_mat[,i] = v%*%(solve(Z)%*%(t(d)%*%(t(u)%*%y)))
+  }
+  return(b_mat)
+}
+
+#' Leave One Out
+#'
+#' \code{leave_one_out} returns the leave-one-out
+#' for a sequence of regularization parameter values.
+#'
+#' @param y response variables
+#' @param X design matrix
+#' @param lambda vector of tuning parameters
+#' @import Matrix
+#' @export
+leave_one_out <- function(y,X,lambda) {
+  y = matrix(y,ncol=1)
+  if(is.null(dim(X))){
+    X = as.matrix(X)
+  }
+  b_mat = ridge_regression(y,X,lambda)
+  p = dim(X)[2]
+  I = diag(p)
+  LOO = numeric(length(lambda))
+  for(i in 1:length(lambda)){
+    Z = t(X)%*%X+lambda[i]*I
+    H = X%*%solve(Z)%*%t(X)
+    y_hat = X%*%b_mat[,i]
+    h_diag = diag(H)
+    k_err= (y-y_hat)/(1-h_diag)
+    LOO[i] = mean(k_err^2)
+  }
+  return(LOO)
+}
+
+

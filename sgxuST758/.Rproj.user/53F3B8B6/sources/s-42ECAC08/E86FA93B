@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1541092997395.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "E86FA93B",
+    "lastKnownWriteTime" : 1541744469,
+    "last_content_update" : 1541744469700,
+    "path" : "D:/NCSU Rcode/sgxuST758/tests/testthat/test-ridge.R",
+    "project_path" : "tests/testthat/test-ridge.R",
+    "properties" : {
+        "cursorPosition" : "22,19",
+        "scrollLine" : "0",
+        "tempName" : "Untitled2"
+    },
+    "relative_order" : 9,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

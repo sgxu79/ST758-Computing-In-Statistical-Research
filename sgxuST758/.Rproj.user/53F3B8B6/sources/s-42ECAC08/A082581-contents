@@ -1,0 +1,344 @@
+---
+title: "Homework 4"
+author: "Steven Xu"
+date: "Due @ 5pm on November 9, 2018"
+header-includes:
+  - \usepackage{bm}
+  - \newcommand{\Real}{\mathbb{R}}
+  - \newcommand{\dom}{{\bf dom}\,}
+  - \newcommand{\Tra}{^{\sf T}} % Transpose
+  - \newcommand{\Inv}{^{-1}} % Inverse
+  - \def\Vec{\mathop{\rm vec}\nolimits}
+  - \def\sweep{\mathop{\rm sweep}\nolimits}
+  - \newcommand{\diag}{\mathop{\rm diag}\nolimits}
+  - \newcommand{\tr}{\operatorname{tr}} % Trace
+  - \newcommand{\epi}{\operatorname{epi}} % epigraph
+  - \newcommand{\V}[1]{{\bm{\mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\VE}[2]{\MakeLowercase{#1}_{#2}} % vector element
+  - \newcommand{\Vn}[2]{\V{#1}^{(#2)}} % n-th vector
+  - \newcommand{\Vtilde}[1]{{\bm{\tilde \mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\Vhat}[1]{{\bm{\hat \mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\VtildeE}[2]{\tilde{\MakeLowercase{#1}}_{#2}} % vector element
+  - \newcommand{\M}[1]{{\bm{\mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\ME}[2]{\MakeLowercase{#1}_{#2}} % matrix element
+  - \newcommand{\Mtilde}[1]{{\bm{\tilde \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mhat}[1]{{\bm{\hat \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mcheck}[1]{{\bm{\check \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mbar}[1]{{\bm{\bar \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mn}[2]{\M{#1}^{(#2)}} % n-th matrix
+output: pdf_document
+---
+
+
+**Part 1.** Let $\V{y} = \M{X}\V{\beta} + \V{w}$, where $\V{y} \in \Real^n, \M{X} \in \Real^{n \times p}$, $\V{\beta} \in \Real^p$, and $\VE{w}{i}$ are i.i.d. random vectors with zero mean and variance $\sigma^2$. Recall that the ridge regression estimate is given by
+
+$$
+\Vhat{\beta}_\lambda = \underset{\V{\beta}}{\arg\min}\; \frac{1}{2}\lVert \V{y} - \M{X}\V{\beta} \rVert_2^2 + \frac{\lambda}{2} \lVert \V{\beta} \rVert_2^2.
+$$
+
+1. Show that the variance of $\Vhat{\beta}_\lambda$ is given by
+
+$$
+\sigma^2 \M{W}\M{X}\Tra\M{X}\M{W},
+$$
+where $\M{W} = (\M{X}\Tra\M{X} + \lambda\M{I})\Inv$.
+
+**Answer:**
+
+$$
+\begin{aligned}
+\text{First we need to show that } \  &(X\Tra X+\lambda\M{I})\succ 0 \\
+\text{Let } \V{z}&\ne\V{0}, \V{z}(\Tra \M{X}\Tra \M{X})\V{z}= (\M{X}\V{z})\Tra(\M{X}\V{z})=||\M{X}\V{z}||^2_2\ge0\\
+\text{Thus } \M{X}\Tra \M{X} &\text{ is positive semi-definite.} \\
+\text{Then immediately we have }& \V{z}\Tra(\M{X}\Tra\M{X}+\lambda\M{I})\V{z}>0 \ \ \forall \V{z}\ne\V{0} \\
+\text{Therefore } &(\M{X}\Tra\M{X}+\lambda\M{I})\succ 0 \\
+f(\V{\beta}) &= \frac{1}{2}(\V{y}-\M{X}\V{\beta})\Tra(\V{y}-\M{X}\V{\beta})+\frac{\lambda}{2}\V{\beta}\Tra\V{\beta} \\    
+f(\V{\beta}) &= \frac{1}{2}(\V{y}\Tra\V{y}-2 \V{y}\Tra\M{X}\V{\beta}+\V{\beta}\Tra\M{X}\Tra\M{X}\V{\beta})+\frac{\lambda}{2}\V{\beta}\Tra\V{\beta}\\
+\frac{\partial f}{\partial \V{\beta}} &= \frac{1}{2}(-2\M{X}\Tra\V{y}+2\M{X}\Tra\M{X}\V{\beta})+\lambda\V{\beta} = 0 \\
+(\M{X}\Tra\M{X}+\lambda\M{I})\V{\beta} &= \M{X}\Tra\V{y} \\
+{\Vhat{\beta}_\lambda} &=(\M{X}\Tra\M{X}+\lambda\M{I})^{-1}\M{X}\Tra\V{y} \\\\
+\frac{\partial^2 f}{\partial \V{\beta}^2} &= (\M{X}\Tra\M{X}+\lambda\M{I})\succ0 \\\\
+Var(\Vhat{\beta}_\lambda) &= \M{W}\M{X}\Tra var(\V{y})\M{X}\M{W}\Tra \\\\
+&\text{Since M is symmetric and } \ \V{y}\sim N(\M{X}\V{\beta, \ \sigma^2\M{I}}) \\\\
+Var(\Vhat{\beta}_\lambda) &=\sigma^2\M{W}\M{X}\Tra\M{X}\M{W} \\\\
+\text{Where } \M{W} &= (\M{X}\Tra\M{X}+\lambda\M{I})^{-1}
+\end{aligned}
+$$
+
+2. Show that the bias of $\Vhat{\beta}_\lambda$ is given by
+
+$$
+- \lambda\M{W}\V{\beta}
+$$
+
+**Answer:**
+
+$$
+\begin{aligned}
+Bias(\Vhat{\beta}_\lambda) &= \mathbb{E}(\Vhat{\beta}_\lambda)-\V{\beta} \\
+&=(\M{X}\Tra\M{X}+\lambda\M{I})^{-1}\M{X}\Tra\M{X}\V{\beta} - \V{\beta} \\
+&=[(\M{X}\Tra\M{X}+\lambda\M{I})^{-1}\M{X}\Tra\M{X}-\M{I}]\V{\beta} \\
+&=[(\M{X}\Tra\M{X}+\lambda\M{I})^{-1}(\M{X}\Tra\M{X}+\lambda\M{I}-\lambda\M{I})-\M{I}]\V{\beta}\\
+&=[\M{I}-\lambda(\M{X}\Tra\M{X}+\lambda\M{I})^{-1}-\M{I}]\V{\beta} \\
+&=-\lambda(\M{X}\Tra\M{X}+\lambda\M{I})^{-1}\V{\beta} \\
+&=-\lambda\M{W}\V{\beta}
+\end{aligned}
+$$
+
+3. A natural question is how to choose the tuning parameter $\lambda$. Several classes of solutions See Efron paper.
+
+The degrees of freedom of a linear estimator $\Vhat{y} = \M{S}\V{y}$ is given by $\tr(\M{S})$. Ridge regression provides a linear estimator of the observed response $\V{y}$ where $\M{S} = \M{X}(\M{X}\Tra\M{X} + \lambda\M{I})\Inv\M{X}\Tra$. Show that the degrees of freedom of the ridge estimator is given by
+
+$$
+\sum_i \frac{\sigma_i^2}{\sigma_i^2 + \lambda},
+$$
+where $\sigma_i$ is the $i$th singular value of $\M{X}$.
+
+**Answer:**
+
+$$
+\begin{aligned}
+tr(S) &= tr \left \{ \M{X}(\M{X}\Tra\M{X}+\lambda\M{I})^{-1}\M{X}\Tra \right\} \\
+&= tr\left \{ (\M{X}\Tra\M{X}+\lambda\M{I})^{-1}\M{X}\Tra\M{X} \right\} \\
+&= tr\left \{ (\M{X}\Tra\M{X}+\lambda\M{I})^{-1}(\M{X}\Tra\M{X}+\lambda\M{I}-\lambda\M{I}) \right\} \\
+&= tr\left \{\M{I}-\lambda(\M{X}\Tra\M{X}+\lambda\M{I})^{-1} \right\}\\
+&=\sum_{i=1}^n1-\lambda \times tr\left \{(\M{X}\Tra\M{X}+\lambda\M{I})^{-1} \right\} \\
+&=\sum_{i=1}^n1-\lambda \times tr\left \{(\M{V}\M{\Sigma}\Tra\M{U}\Tra\M{U}\M{\Sigma}\M{V}\Tra+\lambda\M{V}\M{V}\Tra)^{-1} \right\} \\
+&=\sum_{i=1}^n1-\lambda \times tr\left \{(\M{V}\M{\Sigma}\Tra\M{\Sigma}\M{V}\Tra+\lambda\M{V}\M{V}\Tra)^{-1} \right\} \\
+&=\sum_{i=1}^n1-\lambda \times tr\left \{[\M{V}(\M{\Sigma}\Tra\M{\Sigma}+\lambda\M{I})\M{V}\Tra]^{-1} \right\} \\
+&=\sum_{i=1}^n1-\lambda \times tr\left \{[\M{V}\Tra(\M{\Sigma}\Tra\M{\Sigma}+\lambda\M{I})^{-1}\M{V}] \right\} \\
+&=\sum_{i=1}^n1-\lambda \times tr\left \{(\M{\Sigma}\Tra\M{\Sigma}+\lambda\M{I})^{-1}\M{V}\M{V}\Tra \right\} \\
+&=\sum_{i=1}^n1-\lambda \times tr\left \{(\M{\Sigma}\Tra\M{\Sigma}+\lambda\M{I})^{-1} \right\} \\
+\text{We know that  } &\M{\Sigma}\Tra\M{\Sigma}+\lambda\M{I} \text{ is diagonal with } i^{th} \ \text{diagonal entry equals to} \ \sigma_i^2+\lambda. \\
+\therefore tr\left \{(\M{\Sigma}\Tra\M{\Sigma}+\lambda\M{I})^{-1} \right\} &=\sum_{i=1}^n\frac{1}{\sigma_i^2+\lambda} \\
+\therefore tr(S) &=\sum_{i=1}^n(1-\frac{\lambda}{\sigma^2_i+\lambda})=\sum_{i=1}^n\frac{\sigma^2_i}{\sigma^2_i+\lambda}
+\end{aligned}
+$$
+
+
+\newpage
+
+**Part 2.** Ridge Regression.
+
+You will next add an implementation of the ridge regression to your R package.
+
+Please complete the following steps.
+
+**Step 0:** Make a file called `ridge.R` in your R package. Put it in the R subdirectory, namely we should be able to see the file at github.ncsu.edu/unityidST758/unityidST758/R/ridge.R
+
+**Step 1:** Write a function `ridge_regression` that computes the ridge regression coefficient estimates for a sequence of regularization parameter values $\lambda$.
+
+It should return an error message
+
+- if the response variable $\V{y} \in \Real^n$ and the design matrix $\M{X} \in \Real^{n \times p}$ are not conformable
+- if the tuning parameters are negative
+
+Please use the `stop` function. 
+
+```{r, echo=TRUE}
+#' Ridge Regression
+#' 
+#' \code{ridge_regression} returns the ridge regression coefficient estimates
+#' for a sequence of regularization parameter values.
+#' 
+#' @param y response variables
+#' @param X design matrix
+#' @param lambda vector of tuning parameters
+#' @export
+# ridge_regression <- function(y, X, lambda) {
+#  
+# }
+```
+
+**Step 2:** Write a unit test function `test-ridge` that
+
+- checks the error messages for your `ridge_regression` function
+- checks the correctness of the estimated regression coefficients produced by `ridge_regression` function. Given data $(\V{y},\M{X})$, recall that $\V{b}$ is the ridge estimate with regularization parameter $\lambda$ if and only if
+
+$$
+(\M{X}\Tra\M{X} + \lambda\M{I})\V{b} = \M{X}\Tra\V{y}.
+$$
+
+**Step 3:** Construct three poorly conditioned multiple linear regression problems, with design matrices with condition numbers of 100, 1000, and 10000. Write in this Markdown file, using nice notation the problem set up.
+
+For an arbitrary full column rank design matrix $\M{X} \in \Real^{n \times p}$, let $\M{U}\M{\Sigma}\M{V}\Tra$ be the singular value decomposition of $\M{X}$. Now since the definition of condition number is $\kappa(\M{X})=\frac{\sigma_{max}(X)}{\sigma_{min}(X)}$, where $\sigma_{max}(X)$, $\sigma_{min}(X)$ are the largest and smallest non-zero sigular value respectively. Then we can modify $\M{\Sigma}$ such that $\frac{\sigma_{max}^*(X)}{\sigma_{min}^*(X)}=K$, where $\sigma_{max}^*(X)$ and $\sigma_{min}^*(X)$ are modified singular values and $K$ our desired condition number. Then the reconstructed $\M{X}$ would be a ill-conditioned design matrix. 
+
+$$
+\M{X}=\begin{pmatrix}
+1 & 1\\
+1 & 1 \\
+1 & 1.001
+\end{pmatrix}
+,
+\ \V{y}=\begin{pmatrix}
+1 \\
+2  \\
+1 
+\end{pmatrix}
+$$
+
+We can see that X is extremely close to singular.
+
+$$
+\M{U}\M{\Sigma}\M{V}\Tra = \M{X}
+$$
+
+$$
+\M{\Sigma} = \begin{pmatrix}
+2.45 & 0\\
+0 & 0.00058 \\
+0 & 0
+\end{pmatrix} \to \begin{pmatrix}
+0.058 & 0\\
+0 & 0.00058 \\
+0 & 0
+\end{pmatrix} \ or \ \begin{pmatrix}
+0.58 & 0\\
+0 & 0.00058 \\
+0 & 0
+\end{pmatrix} \ or \ \begin{pmatrix}
+5.8 & 0\\
+0 & 0.00058 \\
+0 & 0
+\end{pmatrix}=\M{\Sigma}^* 
+$$
+
+$$
+\M{X} = \M{U}\M{\Sigma}^*\M{V}\Tra
+$$
+
+
+**Step 4:** Solve the three regression problems you constructed in Step 4.
+
+```{r}
+set.seed(1234)
+X <- matrix(c(1,1,1,1,1,1.001),nrow=3,ncol=2, byrow = F)
+y = matrix(c(1,2,1),ncol=1)
+s = svd(X)
+d = s$d
+u = s$u
+v = s$v
+n = length(d)
+d[1] <- d[2]*1e2
+b_hat = matrix(0,ncol=3,nrow=n)
+X_1e2 = u%*%diag(d)%*%t(v)
+d[1] <- d[2]*1e3
+X_1e3 = u%*%diag(d)%*%t(v)
+d[1] <- d[2]*1e4
+X_1e4 = u%*%diag(d)%*%t(v)
+b_hat[,1] = solve(t(X_1e2)%*%X_1e2,t(X_1e2)%*%y)
+b_hat[,2] = solve(t(X_1e3)%*%X_1e3,t(X_1e3)%*%y)
+b_hat[,3] = solve(t(X_1e4)%*%X_1e4,t(X_1e4)%*%y)
+
+```
+
+
+
+**Step 5:** Solve a perturbed linear regression problem, i.e. add noise to the design matrix and response variable. Solve the perturbed systems and report the relative error between the solutions to the perturbed systems and the solutin you obtained in Step 5. How does this relative error compare to the worst case bounds derived in class?
+
+$$
+\Delta \M{X} = \begin{pmatrix}
+0 & 0\\
+0 & 0\\
+2\times10^{-6} & 2\times10^{-6}
+\end{pmatrix}
+,
+\ \Delta \M{y}\sim N_3(\V{0},10^{-6}\times\M{I})
+$$
+
+Since $\kappa(X)=10^2,10^3,10^4$, I chose $\epsilon=5\times10^{-6}$ so that $\epsilon\kappa(X)<\frac{1}{2}$. Then if all the conditions are met, we should have the inequality $\frac{||\tilde{\beta}-\hat{\beta}||_2}{||\hat{\beta}||_2}\le4\epsilon\kappa(X)$. The perturbation was chosen so that X will become even closer to singular matrix.
+
+```{r}
+X_noise = matrix(c(0,0,2e-6,0,0,-2e-6),ncol=2)
+y_noise = rnorm(3,0,1e-6)
+X_pert_1e2 = X_1e2+X_noise
+X_pert_1e3 = X_1e3+X_noise
+X_pert_1e4 = X_1e4+X_noise
+y_pert = y+y_noise
+cat("Size of perturbation")
+c(max(norm(X_noise,'2')/norm(X_1e2,'2'),norm(y_noise,'2')/norm(y,'2')),max(norm(X_noise,'2')/norm(X_1e3,'2'),norm(y_noise,'2')/norm(y,'2')),max(norm(X_noise,'2')/norm(X_1e4,'2'),norm(y_noise,'2')/norm(y,'2')))
+b_hat_pert = matrix(0,ncol=3,nrow=n)
+b_hat_pert[,1] = solve(t(X_pert_1e2)%*%X_pert_1e2,t(X_pert_1e2)%*%y_pert)
+b_hat_pert[,2] = solve(t(X_pert_1e3)%*%X_pert_1e3,t(X_pert_1e3)%*%y_pert)
+b_hat_pert[,3] = solve(t(X_pert_1e4)%*%X_pert_1e4,t(X_pert_1e4)%*%y_pert)
+re_err1 = numeric(3)
+for(i in 1:3){
+  re_err1[i] = norm(matrix((b_hat_pert[,i]-b_hat[,i]),ncol=1),'2')/norm(matrix(b_hat[,i],ncol=1),'2')
+}
+cat("relative error")
+re_err1
+```
+
+The maximum perturbation for the three ill-conditioned matrices are $4.9\times10^{-5},4.9\times10^{-6},6.72\times10^{-7}$ which are all less than $5\times10^{-5}$. Therefore the conditions are met. Relative erros are all about 0.004, comparing to the worst bounds $0.02,0.2,2$. We see that for Matrix with smaller condition number the bound is tighter.
+
+
+**Step 6:** Write a function `leave_one_out` that computes the following leave-one-out (LOO) prediction error estimate:
+
+$$
+\text{LOO}(\lambda) = \frac{1}{n} \sum_{k=1}^n (\VE{y}{k} - \hat{y}_k^{-k}(\lambda))^2,
+$$
+where
+
+$$
+\VE{y}{k} - \hat{y}_k^{-k}(\lambda) = \frac{\VE{y}{k} - \hat{y}_k(\lambda)}{1 - \VE{h}{k}(\lambda)},
+$$
+and $\ME{h}{k}(\lambda)$ is the $k$th diagonal entry of the matrix $\M{X}(\M{X}\Tra\M{X} + \lambda \M{I})\Inv\M{X}\Tra$.
+
+```{r, echo=TRUE}
+#' Leave One Out
+#' 
+#' \code{leave_one_out} returns the leave-one-out 
+#' for a sequence of regularization parameter values.
+#' 
+#' @param y response variables
+#' @param X design matrix
+#' @param lambda vector of tuning parameters
+#' @export
+# leave_one_out <- function(y, X, lambda) {
+# }
+```
+
+
+
+**Step 7:** Solve ridge penalized versions of the perturbed multiple linear regression problems for several values of the tuning parameter $\lambda$. Please highlight the one that minimizes the LOO prediction error. Plot the relative error for the three problems as a function of $\lambda$.
+
+```{r}
+library(sgxuST758)
+par(mfrow=c(1,2))
+lambda<-10^seq(-10,-2,length.out = 100)
+lambda1<-10^seq(-15,-8,length.out = 100)
+
+re_err = numeric(length(lambda))
+b_lam = ridge_regression(y_pert,X_pert_1e2,lambda1)
+for(i in 1:length(lambda1)){
+  re_err[i] = norm(matrix((b_lam[,i]-b_hat[,1]),ncol=1),'2')/norm(matrix(b_hat[,1],ncol=1),'2')
+}
+loo_vec<-leave_one_out(y_pert,X_pert_1e2,lambda)
+plot(lambda,loo_vec,type="l",xlab=expression(lambda),ylab="LOO",main=expression(kappa(X)==100))
+l_min = which(loo_vec == min(loo_vec))
+abline(v=lambda[l_min],col=2)
+plot(lambda1,re_err,type="l",xlab=expression(lambda),ylab="Relative error")
+b_lam = ridge_regression(y_pert,X_pert_1e3,lambda1)
+lambda<-10^seq(-10,0,length.out = 100)
+for(i in 1:length(lambda1)){
+  re_err[i] = norm(matrix((b_lam[,i]-b_hat[,1]),ncol=1),'2')/norm(matrix(b_hat[,1],ncol=1),'2')
+}
+loo_vec<-leave_one_out(y_pert,X_pert_1e3,lambda)
+plot(lambda,loo_vec,type="l",xlab=expression(lambda),ylab="LOO",main=expression(kappa(X)==1000))
+l_min = which(loo_vec == min(loo_vec))
+abline(v=lambda[l_min],col=2)
+plot(lambda1,re_err,type="l",xlab=expression(lambda),ylab="Relative error")
+b_lam = ridge_regression(y_pert,X_pert_1e4,lambda1)
+lambda<-10^seq(-10,2,length.out = 100)
+for(i in 1:length(lambda1)){
+  re_err[i] = norm(matrix((b_lam[,i]-b_hat[,1]),ncol=1),'2')/norm(matrix(b_hat[,1],ncol=1),'2')
+}
+loo_vec<-leave_one_out(y_pert,X_pert_1e4,lambda)
+plot(lambda,loo_vec,type="l",xlab=expression(lambda),ylab="LOO",main=expression(kappa(X)==10000))
+l_min = which(loo_vec == min(loo_vec))
+abline(v=lambda[l_min],col=2)
+plot(lambda1,re_err,type="l",xlab=expression(lambda),ylab="Relative error")
+
+```
+
+We can see that for larger condition number, larger value of $\lambda$ is required to reach the minimizing point for LOO.

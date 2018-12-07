@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1544113161998.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "E7583138",
+    "lastKnownWriteTime" : 1544113159,
+    "last_content_update" : 1544113159,
+    "path" : "C:/Users/steve/Downloads/Last.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "164,18",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 16,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
