@@ -1,1 +1,1 @@
-The sgxuST758 package contains implementation of power methods and sweep operators.
+The sgxuST758 package is a collection of functions that implement well-known numerical analysis methods such as power method, sweep operator and cholesky factorization.
